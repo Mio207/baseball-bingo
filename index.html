@@ -21,440 +21,541 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .pop-in { animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .pop-in { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popIn {
-            from { opacity: 0; transform: scale(0.5); }
+            from { opacity: 0; transform: scale(0.8); }
             to { opacity: 1; transform: scale(1); }
         }
         
-        .base-empty { fill: rgba(255, 255, 255, 0.3); stroke: white; }
+        .base-empty { fill: rgba(255, 255, 255, 0.2); stroke: rgba(255,255,255,0.6); }
         .base-occupied { fill: #facc15; stroke: #ca8a04; } 
         .opt-btn { transition: all 0.2s; }
         .opt-selected { background-color: #fef08a !important; border-color: #ca8a04 !important; color: #854d0e !important; transform: scale(0.95); box-shadow: 0 0 15px #facc15; }
         
+        /* 隱藏滾動條但保留功能 */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         /* 彩帶特效 */
         .confetti {
-            position: absolute; width: 12px; height: 12px; background-color: #f00;
+            position: absolute; width: 10px; height: 10px; background-color: #f00;
             animation: fall linear forwards;
             z-index: 100;
         }
         @keyframes fall {
             to { transform: translateY(100vh) rotate(720deg); }
         }
+        
+        /* Modal 遮罩通用樣式 */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+        }
     </style>
 </head>
-<body class="h-screen overflow-hidden flex flex-col">
+<body class="h-screen w-screen overflow-hidden flex flex-col relative">
 
-    <!-- 頂部四組計分板 (滿版寬度) -->
-    <header id="scoreboard" class="hidden bg-black/90 backdrop-blur-sm shadow-2xl p-2 sticky top-0 z-20 flex-col justify-center items-center border-b-4 border-yellow-500 text-white shrink-0">
-        <div class="flex items-center justify-between w-full px-4 mb-2">
-            <h1 class="text-2xl md:text-4xl font-black text-yellow-400 tracking-wider">⚾ 來甘一盃棒球經典賽</h1>
-            <button onclick="toggleSound()" id="sound-btn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-full text-lg font-bold border-2 border-gray-400 shadow-md">🔊 音效與音樂: 開</button>
-        </div>
-        
-        <div class="grid grid-cols-4 gap-3 w-full px-4 text-base md:text-xl">
-            <!-- 四組計分 -->
-            <div id="score-card-0" class="bg-blue-900/80 p-2 md:p-3 rounded-2xl border-2 border-blue-400 flex justify-between items-center shadow-inner">
-                <div class="flex flex-col"><span id="name-0" class="font-bold text-blue-200 text-xl md:text-2xl truncate max-w-[100px]">一組</span><span class="text-sm md:text-lg">安:<span id="hits-0">0</span></span></div>
-                <div class="flex flex-col items-center">
-                    <svg width="32" height="32" viewBox="0 0 100 100"><polygon points="50,15 85,50 50,85 15,50" fill="none" stroke="white" stroke-width="4"/><circle id="base-1-0" cx="85" cy="50" r="14" class="base-empty"/><circle id="base-2-0" cx="50" cy="15" r="14" class="base-empty"/><circle id="base-3-0" cx="15" cy="50" r="14" class="base-empty"/></svg>
-                </div>
-                <div class="text-4xl md:text-5xl font-black text-white" id="pts-0">0</div>
-            </div>
-            <div id="score-card-1" class="bg-red-900/80 p-2 md:p-3 rounded-2xl border-2 border-red-400 flex justify-between items-center shadow-inner">
-                <div class="flex flex-col"><span id="name-1" class="font-bold text-red-200 text-xl md:text-2xl truncate max-w-[100px]">二組</span><span class="text-sm md:text-lg">安:<span id="hits-1">0</span></span></div>
-                <div class="flex flex-col items-center">
-                    <svg width="32" height="32" viewBox="0 0 100 100"><polygon points="50,15 85,50 50,85 15,50" fill="none" stroke="white" stroke-width="4"/><circle id="base-1-1" cx="85" cy="50" r="14" class="base-empty"/><circle id="base-2-1" cx="50" cy="15" r="14" class="base-empty"/><circle id="base-3-1" cx="15" cy="50" r="14" class="base-empty"/></svg>
-                </div>
-                <div class="text-4xl md:text-5xl font-black text-white" id="pts-1">0</div>
-            </div>
-            <div id="score-card-2" class="bg-green-900/80 p-2 md:p-3 rounded-2xl border-2 border-green-400 flex justify-between items-center shadow-inner">
-                <div class="flex flex-col"><span id="name-2" class="font-bold text-green-200 text-xl md:text-2xl truncate max-w-[100px]">三組</span><span class="text-sm md:text-lg">安:<span id="hits-2">0</span></span></div>
-                <div class="flex flex-col items-center">
-                    <svg width="32" height="32" viewBox="0 0 100 100"><polygon points="50,15 85,50 50,85 15,50" fill="none" stroke="white" stroke-width="4"/><circle id="base-1-2" cx="85" cy="50" r="14" class="base-empty"/><circle id="base-2-2" cx="50" cy="15" r="14" class="base-empty"/><circle id="base-3-2" cx="15" cy="50" r="14" class="base-empty"/></svg>
-                </div>
-                <div class="text-4xl md:text-5xl font-black text-white" id="pts-2">0</div>
-            </div>
-            <div id="score-card-3" class="bg-purple-900/80 p-2 md:p-3 rounded-2xl border-2 border-purple-400 flex justify-between items-center shadow-inner">
-                <div class="flex flex-col"><span id="name-3" class="font-bold text-purple-200 text-xl md:text-2xl truncate max-w-[100px]">四組</span><span class="text-sm md:text-lg">安:<span id="hits-3">0</span></span></div>
-                <div class="flex flex-col items-center">
-                    <svg width="32" height="32" viewBox="0 0 100 100"><polygon points="50,15 85,50 50,85 15,50" fill="none" stroke="white" stroke-width="4"/><circle id="base-1-3" cx="85" cy="50" r="14" class="base-empty"/><circle id="base-2-3" cx="50" cy="15" r="14" class="base-empty"/><circle id="base-3-3" cx="15" cy="50" r="14" class="base-empty"/></svg>
-                </div>
-                <div class="text-4xl md:text-5xl font-black text-white" id="pts-3">0</div>
-            </div>
+    <!-- 頂部控制列 -->
+    <header id="top-header" class="hidden bg-black/80 backdrop-blur-md shadow-md p-2 shrink-0 z-20 flex justify-between items-center border-b-2 border-yellow-500 text-white">
+        <h1 class="text-xl md:text-2xl font-black text-yellow-400 tracking-wider ml-4">⚾ 來甘一盃棒球經典賽</h1>
+        <div class="flex gap-3 mr-4">
+            <button onclick="toggleFullScreen()" id="fs-btn" class="bg-gray-700 hover:bg-gray-600 px-4 py-1.5 rounded-full text-sm font-bold border border-gray-400 transition-colors">⛶ 全螢幕</button>
+            <button onclick="toggleBGM()" id="bgm-btn" class="bg-gray-700 hover:bg-gray-600 px-4 py-1.5 rounded-full text-sm font-bold border border-gray-400 transition-colors">🎵 音樂: 關</button>
+            <button onclick="toggleSound()" id="sound-btn" class="bg-gray-700 hover:bg-gray-600 px-4 py-1.5 rounded-full text-sm font-bold border border-gray-400 transition-colors">🔊 音效: 開</button>
         </div>
     </header>
 
-    <main class="flex-grow flex flex-col items-center justify-start w-full px-2 md:px-6 relative h-full overflow-hidden">
+    <!-- 主要內容區 -->
+    <main class="flex-1 min-h-0 w-full flex relative p-4 gap-4">
         
         <!-- ==================== 畫面 1：開始設定 ==================== -->
-        <div id="setup-screen" class="text-center fade-in bg-white/95 p-8 md:p-12 rounded-3xl shadow-2xl w-full max-w-5xl border-4 border-yellow-500 my-auto overflow-y-auto max-h-full hide-scrollbar">
-            <div class="text-8xl mb-4 drop-shadow-md">⚾🍻</div>
-            <h2 class="text-6xl font-black text-green-800 mb-8 tracking-wide">來甘一盃棒球經典賽</h2>
-            <p class="text-2xl text-gray-700 mb-8 font-bold bg-gray-100 p-6 rounded-2xl leading-relaxed border-2 border-gray-300">
-                打擊規則：共分為四組，每答對一題即擊出安打！回本壘得一分。<br>第7、14、21球為<span class="text-red-600">「全壘打魔王題」</span>！<br>
-                <span class="text-blue-600">※ 第一題為示範題不計分。每組整場有 3 次盜壘機會。</span>
-            </p>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div class="bg-blue-50 p-6 rounded-2xl border-4 border-blue-300 shadow-inner">
-                    <h3 class="text-3xl font-bold text-blue-700 mb-4">第一組隊名</h3>
-                    <input type="text" id="input-t0" value="猛虎隊" class="w-full text-center text-4xl font-bold p-4 border-2 border-blue-400 rounded-xl bg-white">
+        <div id="setup-screen" class="absolute inset-0 z-30 flex items-center justify-center fade-in bg-black/70 backdrop-blur-sm p-6">
+            <div class="text-center bg-white/95 p-8 rounded-3xl shadow-2xl w-full max-w-6xl border-4 border-yellow-500 flex flex-col max-h-full">
+                <div class="shrink-0">
+                    <div class="text-6xl mb-2 drop-shadow-md leading-none">⚾🍻</div>
+                    <h2 class="text-4xl lg:text-5xl font-black text-green-800 mb-4 tracking-wide">來甘一盃棒球經典賽</h2>
+                    <p class="text-lg lg:text-xl text-gray-700 mb-6 font-bold bg-gray-100 p-4 rounded-xl leading-relaxed border-2 border-gray-300">
+                        打擊規則：共分為四組，每答對一題即擊出安打！回本壘得一分。<br>第7、14、21球為<span class="text-red-600">「全壘打魔王題」</span>！<br>
+                        <span class="text-blue-600">※ 第一題為示範題不計分。每組整場有 3 次盜壘機會。</span>
+                    </p>
                 </div>
-                <div class="bg-red-50 p-6 rounded-2xl border-4 border-red-300 shadow-inner">
-                    <h3 class="text-3xl font-bold text-red-700 mb-4">第二組隊名</h3>
-                    <input type="text" id="input-t1" value="狂龍隊" class="w-full text-center text-4xl font-bold p-4 border-2 border-red-400 rounded-xl bg-white">
+                
+                <!-- 橫向四組輸入 -->
+                <div class="grid grid-cols-4 gap-4 mb-6 flex-1 min-h-0">
+                    <div class="bg-blue-50 p-4 rounded-2xl border-2 border-blue-300 shadow-inner flex flex-col justify-center">
+                        <h3 class="text-xl font-bold text-blue-700 mb-2">第一組</h3>
+                        <input type="text" id="input-t0" value="猛虎隊" class="w-full text-center text-2xl font-black p-2 border border-blue-400 rounded-xl bg-white">
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-2xl border-2 border-red-300 shadow-inner flex flex-col justify-center">
+                        <h3 class="text-xl font-bold text-red-700 mb-2">第二組</h3>
+                        <input type="text" id="input-t1" value="狂龍隊" class="w-full text-center text-2xl font-black p-2 border border-red-400 rounded-xl bg-white">
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-2xl border-2 border-green-300 shadow-inner flex flex-col justify-center">
+                        <h3 class="text-xl font-bold text-green-700 mb-2">第三組</h3>
+                        <input type="text" id="input-t2" value="飛鷹隊" class="w-full text-center text-2xl font-black p-2 border border-green-400 rounded-xl bg-white">
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-2xl border-2 border-purple-300 shadow-inner flex flex-col justify-center">
+                        <h3 class="text-xl font-bold text-purple-700 mb-2">第四組</h3>
+                        <input type="text" id="input-t3" value="神豹隊" class="w-full text-center text-2xl font-black p-2 border border-purple-400 rounded-xl bg-white">
+                    </div>
                 </div>
-                <div class="bg-green-50 p-6 rounded-2xl border-4 border-green-300 shadow-inner">
-                    <h3 class="text-3xl font-bold text-green-700 mb-4">第三組隊名</h3>
-                    <input type="text" id="input-t2" value="飛鷹隊" class="w-full text-center text-4xl font-bold p-4 border-2 border-green-400 rounded-xl bg-white">
-                </div>
-                <div class="bg-purple-50 p-6 rounded-2xl border-4 border-purple-300 shadow-inner">
-                    <h3 class="text-3xl font-bold text-purple-700 mb-4">第四組隊名</h3>
-                    <input type="text" id="input-t3" value="神豹隊" class="w-full text-center text-4xl font-bold p-4 border-2 border-purple-400 rounded-xl bg-white">
-                </div>
+                <button onclick="startGame()" class="btn-press shrink-0 bg-green-600 hover:bg-green-700 text-white text-3xl font-black py-4 px-16 rounded-full shadow-[0_6px_0_rgb(20,83,45)] mx-auto tracking-widest border-2 border-green-400">
+                    PLAY BALL! ⚾
+                </button>
             </div>
-            <button onclick="startGame()" class="btn-press bg-green-600 hover:bg-green-700 text-white text-5xl font-black py-6 px-24 rounded-full shadow-[0_10px_0_rgb(20,83,45)] w-full md:w-auto">
-                PLAY BALL! ⚾
-            </button>
         </div>
 
-        <!-- ==================== 畫面 2：遊戲進行中 (包含分頁切換) ==================== -->
-        <div id="game-screen" class="hidden w-full flex-col h-full mt-2 fade-in">
+        <!-- ==================== 畫面 2：主遊戲版面 ==================== -->
+        <div id="game-layout" class="hidden w-full h-full flex flex-row gap-4 fade-in">
             
-            <!-- 計時器與標題狀態列 -->
-            <div class="w-full bg-white/95 rounded-2xl shadow-lg p-3 md:p-4 mb-3 flex flex-col md:flex-row items-center justify-between border-4 border-gray-300 shrink-0 gap-4 z-10">
-                <div class="flex items-center space-x-4">
-                    <span class="text-2xl md:text-4xl font-black text-blue-800 bg-blue-100 px-6 py-2 rounded-xl border-2 border-blue-300">第 <span id="q-num-display" class="text-black text-3xl md:text-5xl">1</span> 球</span>
-                    <span id="homerun-warning" class="hidden bg-red-600 text-white px-6 py-2 rounded-xl font-bold text-2xl md:text-3xl animate-pulse shadow-md border-4 border-yellow-400 drop-shadow-md">🔥 全壘打題 🔥</span>
-                    <span id="demo-warning" class="hidden bg-gray-600 text-white px-6 py-2 rounded-xl font-bold text-2xl md:text-3xl shadow-md border-4 border-gray-400">💡 示範題 (不計分)</span>
+            <!-- 左側 1/3：直排計分板 -->
+            <div class="w-1/3 h-full flex flex-col gap-3">
+                <!-- 四組計分卡 -->
+                <div class="flex-1 bg-blue-900/90 rounded-2xl border-2 border-blue-400 flex flex-col p-3 shadow-lg justify-center">
+                    <div class="flex justify-between items-center mb-1 px-1">
+                        <span id="name-0" class="font-black text-blue-100 text-2xl truncate">一組</span>
+                        <span class="text-sm font-bold text-blue-300 bg-blue-950 px-2 py-1 rounded-md">安: <span id="hits-0" class="text-white">0</span></span>
+                    </div>
+                    <div class="flex items-center justify-between px-2">
+                        <svg width="50" height="50" viewBox="0 0 100 100"><polygon points="50,15 85,50 50,85 15,50" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="6"/><circle id="base-1-0" cx="85" cy="50" r="14" class="base-empty"/><circle id="base-2-0" cx="50" cy="15" r="14" class="base-empty"/><circle id="base-3-0" cx="15" cy="50" r="14" class="base-empty"/></svg>
+                        <div class="flex items-baseline">
+                            <span class="text-5xl font-black text-white leading-none drop-shadow" id="pts-0">0</span>
+                            <span class="text-lg text-blue-200 ml-1 font-bold">分</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex items-center space-x-3 bg-gray-100 p-2 md:p-3 rounded-2xl border-4 border-gray-300 shadow-inner">
-                    <span class="text-3xl md:text-5xl font-black text-gray-800 font-mono w-28 text-center drop-shadow-sm" id="timer-display">00:30</span>
-                    <button onclick="adjustTimer(-10)" class="btn-press bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-xl text-xl md:text-2xl shadow-md">-10s</button>
-                    <button onclick="adjustTimer(10)" class="btn-press bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-xl text-xl md:text-2xl shadow-md">+10s</button>
-                    <button onclick="toggleTimer()" id="timer-toggle-btn" class="btn-press bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-xl text-xl md:text-2xl shadow-md">▶️ 開始</button>
-                    <button onclick="resetTimer(30)" class="btn-press bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-xl text-xl md:text-2xl shadow-md">🔄 30s</button>
+                <div class="flex-1 bg-red-900/90 rounded-2xl border-2 border-red-400 flex flex-col p-3 shadow-lg justify-center">
+                    <div class="flex justify-between items-center mb-1 px-1">
+                        <span id="name-1" class="font-black text-red-100 text-2xl truncate">二組</span>
+                        <span class="text-sm font-bold text-red-300 bg-red-950 px-2 py-1 rounded-md">安: <span id="hits-1" class="text-white">0</span></span>
+                    </div>
+                    <div class="flex items-center justify-between px-2">
+                        <svg width="50" height="50" viewBox="0 0 100 100"><polygon points="50,15 85,50 50,85 15,50" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="6"/><circle id="base-1-1" cx="85" cy="50" r="14" class="base-empty"/><circle id="base-2-1" cx="50" cy="15" r="14" class="base-empty"/><circle id="base-3-1" cx="15" cy="50" r="14" class="base-empty"/></svg>
+                        <div class="flex items-baseline">
+                            <span class="text-5xl font-black text-white leading-none drop-shadow" id="pts-1">0</span>
+                            <span class="text-lg text-red-200 ml-1 font-bold">分</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-1 bg-green-900/90 rounded-2xl border-2 border-green-400 flex flex-col p-3 shadow-lg justify-center">
+                    <div class="flex justify-between items-center mb-1 px-1">
+                        <span id="name-2" class="font-black text-green-100 text-2xl truncate">三組</span>
+                        <span class="text-sm font-bold text-green-300 bg-green-950 px-2 py-1 rounded-md">安: <span id="hits-2" class="text-white">0</span></span>
+                    </div>
+                    <div class="flex items-center justify-between px-2">
+                        <svg width="50" height="50" viewBox="0 0 100 100"><polygon points="50,15 85,50 50,85 15,50" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="6"/><circle id="base-1-2" cx="85" cy="50" r="14" class="base-empty"/><circle id="base-2-2" cx="50" cy="15" r="14" class="base-empty"/><circle id="base-3-2" cx="15" cy="50" r="14" class="base-empty"/></svg>
+                        <div class="flex items-baseline">
+                            <span class="text-5xl font-black text-white leading-none drop-shadow" id="pts-2">0</span>
+                            <span class="text-lg text-green-200 ml-1 font-bold">分</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-1 bg-purple-900/90 rounded-2xl border-2 border-purple-400 flex flex-col p-3 shadow-lg justify-center">
+                    <div class="flex justify-between items-center mb-1 px-1">
+                        <span id="name-3" class="font-black text-purple-100 text-2xl truncate">四組</span>
+                        <span class="text-sm font-bold text-purple-300 bg-purple-950 px-2 py-1 rounded-md">安: <span id="hits-3" class="text-white">0</span></span>
+                    </div>
+                    <div class="flex items-center justify-between px-2">
+                        <svg width="50" height="50" viewBox="0 0 100 100"><polygon points="50,15 85,50 50,85 15,50" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="6"/><circle id="base-1-3" cx="85" cy="50" r="14" class="base-empty"/><circle id="base-2-3" cx="50" cy="15" r="14" class="base-empty"/><circle id="base-3-3" cx="15" cy="50" r="14" class="base-empty"/></svg>
+                        <div class="flex items-baseline">
+                            <span class="text-5xl font-black text-white leading-none drop-shadow" id="pts-3">0</span>
+                            <span class="text-lg text-purple-200 ml-1 font-bold">分</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- 分頁 1: 題目與選項 (極致滿版大字) -->
-            <div id="page-question" class="bg-white/95 p-6 md:p-10 rounded-[2rem] shadow-2xl flex-grow flex flex-col relative overflow-y-auto hide-scrollbar border-t-8 border-yellow-500">
-                <div id="bingo-title-display-1" class="text-3xl md:text-5xl font-black text-yellow-900 bg-yellow-400 px-8 py-3 rounded-full mb-8 inline-block w-max shadow-md border-4 border-yellow-500">賓果標題</div>
+            <!-- 右側 2/3：主控台 -->
+            <div class="w-2/3 h-full bg-black/40 rounded-3xl border-4 border-green-800 flex flex-col items-center justify-center p-6 relative shadow-2xl backdrop-blur-sm">
                 
-                <h3 id="question-text" class="text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-gray-900 font-black leading-tight mb-10 shrink-0 tracking-wide border-b-4 pb-6 border-gray-200">
-                    題目載入中...
-                </h3>
+                <!-- 標題區域 -->
+                <div class="text-center mb-10 flex flex-col items-center">
+                    <span class="text-2xl font-bold text-yellow-300 block mb-2 tracking-[0.2em] opacity-80">CURRENT PLAY</span>
+                    <h2 class="text-7xl lg:text-8xl font-black text-white tracking-widest drop-shadow-lg leading-none">
+                        第 <span id="q-num-display">1</span> 球
+                    </h2>
+                    
+                    <!-- 新增：答題後的賓果標題揭曉 -->
+                    <div id="bingo-reveal-container" class="hidden mt-6 fade-in h-12">
+                        <span class="inline-block text-3xl lg:text-4xl font-black text-yellow-400 bg-black/80 px-8 py-2 rounded-2xl border-2 border-yellow-500 shadow-[0_0_15px_rgba(250,204,21,0.5)] tracking-wide">
+                            賓果請圈：<span id="main-bingo-title" class="text-white">標題</span>
+                        </span>
+                    </div>
 
-                <!-- 單選題的選項區塊 (複選題會自動隱藏此區) -->
-                <div id="options-container" class="grid grid-cols-1 gap-6 mb-8 shrink-0 mt-auto">
-                    <!-- 選項動態載入 -->
+                    <!-- 標籤 -->
+                    <div class="mt-6 flex gap-4 justify-center h-10">
+                        <span id="homerun-warning" class="hidden bg-red-600 text-white px-6 py-1 rounded-xl font-bold text-2xl animate-pulse shadow-md border-2 border-yellow-400 flex items-center">🔥 全壘打題 🔥</span>
+                        <span id="demo-warning" class="hidden bg-gray-600 text-white px-6 py-1 rounded-xl font-bold text-2xl shadow-md border-2 border-gray-400 flex items-center">💡 示範題</span>
+                    </div>
                 </div>
 
-                <div class="mt-auto shrink-0 pt-6 flex justify-end">
-                    <button onclick="switchPage('lock')" class="btn-press bg-blue-600 hover:bg-blue-700 text-white text-4xl md:text-6xl font-black py-6 px-12 rounded-3xl shadow-[0_10px_0_rgb(30,58,138)] w-full tracking-wider">
-                        進入鎖定答案面板 ➡️
+                <!-- 大按鈕區域 -->
+                <div class="flex flex-col gap-5 w-full max-w-2xl">
+                    <button onclick="openModal('modal-question')" class="btn-press bg-blue-600 hover:bg-blue-700 text-white text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(30,58,138)] border-2 border-blue-400 tracking-wider">
+                        📖 開啟題目面板
                     </button>
+                    
+                    <button id="btn-explain" onclick="openModal('modal-explanation')" class="btn-press bg-green-500 hover:bg-green-600 text-white text-3xl font-black py-4 rounded-2xl shadow-[0_6px_0_rgb(21,128,61)] border-2 border-green-300 tracking-wider transition-all duration-300 opacity-50 cursor-not-allowed" disabled>
+                        💡 觀看解答與結算
+                    </button>
+                    
+                    <div class="flex gap-5 mt-2">
+                        <button onclick="openStealModal()" class="btn-press flex-1 bg-purple-600 hover:bg-purple-700 text-white text-2xl font-black py-3 rounded-2xl shadow-[0_6px_0_rgb(88,28,135)] border-2 border-purple-400 tracking-wider">
+                            🏃‍♂️ 啟動盜壘
+                        </button>
+                        <button onclick="nextQuestion()" class="btn-press flex-1 bg-gray-600 hover:bg-gray-700 text-white text-2xl font-black py-3 rounded-2xl shadow-[0_6px_0_rgb(55,65,81)] border-2 border-gray-400 tracking-wider">
+                            ➡️ 下一球
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== 懸浮視窗 1：看題目與作答 (Modal) ==================== -->
+    <div id="modal-question" class="hidden fixed inset-0 z-50 modal-overlay flex flex-col items-center justify-center p-6 lg:p-12 pop-in">
+        <div class="bg-white rounded-3xl w-full h-full max-w-7xl max-h-full flex flex-col relative shadow-2xl overflow-hidden border-4 border-blue-500">
+            <!-- 關閉按鈕 -->
+            <button onclick="closeModal('modal-question')" class="absolute top-4 right-6 text-gray-400 hover:text-red-500 transition-colors z-50 font-black text-4xl leading-none">✖</button>
+            
+            <!-- Header: 標題與計時器 (不捲動) -->
+            <div class="shrink-0 bg-gray-50 border-b-2 border-gray-200 p-4 flex items-center justify-between">
+                <div id="bingo-title-display-1" class="text-2xl font-black text-yellow-900 bg-yellow-400 px-6 py-2 rounded-full inline-block shadow-sm ml-2 border-2 border-yellow-500">賓果標題</div>
+                <div class="flex items-center space-x-3 bg-white p-2 rounded-xl border border-gray-300 shadow-sm mr-12">
+                    <span class="text-3xl font-black text-gray-800 font-mono w-24 text-center" id="timer-display">00:30</span>
+                    <button onclick="adjustTimer(-10)" class="btn-press bg-orange-500 hover:bg-orange-600 text-white font-bold py-1 px-3 rounded-lg text-lg shadow-sm">-10s</button>
+                    <button onclick="adjustTimer(10)" class="btn-press bg-orange-500 hover:bg-orange-600 text-white font-bold py-1 px-3 rounded-lg text-lg shadow-sm">+10s</button>
+                    <button onclick="toggleTimer()" id="timer-toggle-btn" class="btn-press bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-4 rounded-lg text-lg shadow-sm">▶️ 開始</button>
+                    <button onclick="resetTimer(30)" class="btn-press bg-gray-500 hover:bg-gray-600 text-white font-bold py-1 px-3 rounded-lg text-lg shadow-sm">🔄 30s</button>
                 </div>
             </div>
 
-            <!-- 分頁 2: 鎖定答案面板 -->
-            <div id="page-lock" class="hidden bg-white/95 p-6 md:p-10 rounded-[2rem] shadow-2xl flex-grow flex flex-col justify-between relative overflow-y-auto hide-scrollbar border-t-8 border-blue-500">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 shrink-0">
-                    <h3 class="text-4xl md:text-6xl font-black text-gray-800 tracking-wider">🔒 各組鎖定答案</h3>
-                    <div id="multi-warning" class="hidden bg-purple-200 text-purple-900 px-6 py-3 rounded-xl font-black text-3xl border-4 border-purple-500 shadow-md">✨ 此為複選題，可選多個選項！</div>
-                </div>
+            <!-- Body: 內容區 (可捲動) -->
+            <div class="flex-1 overflow-y-auto p-6 lg:p-8 bg-white relative">
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 flex-grow">
-                    <!-- 四組控制面板 -->
-                    <div class="bg-blue-900 p-6 md:p-8 rounded-3xl flex flex-col items-center justify-center shadow-inner border-4 border-blue-700">
-                        <h4 id="panel-name-0" class="text-blue-200 font-black text-4xl mb-6 tracking-wide drop-shadow-md">第一組</h4>
-                        <div id="btns-0" class="flex flex-wrap justify-center gap-4"></div>
-                        <div id="status-0" class="mt-6 text-yellow-400 font-black text-3xl h-10 bg-black/30 px-6 py-2 rounded-xl">尚未選擇</div>
-                    </div>
-                    <div class="bg-red-900 p-6 md:p-8 rounded-3xl flex flex-col items-center justify-center shadow-inner border-4 border-red-700">
-                        <h4 id="panel-name-1" class="text-red-200 font-black text-4xl mb-6 tracking-wide drop-shadow-md">第二組</h4>
-                        <div id="btns-1" class="flex flex-wrap justify-center gap-4"></div>
-                        <div id="status-1" class="mt-6 text-yellow-400 font-black text-3xl h-10 bg-black/30 px-6 py-2 rounded-xl">尚未選擇</div>
-                    </div>
-                    <div class="bg-green-900 p-6 md:p-8 rounded-3xl flex flex-col items-center justify-center shadow-inner border-4 border-green-700">
-                        <h4 id="panel-name-2" class="text-green-200 font-black text-4xl mb-6 tracking-wide drop-shadow-md">第三組</h4>
-                        <div id="btns-2" class="flex flex-wrap justify-center gap-4"></div>
-                        <div id="status-2" class="mt-6 text-yellow-400 font-black text-3xl h-10 bg-black/30 px-6 py-2 rounded-xl">尚未選擇</div>
-                    </div>
-                    <div class="bg-purple-900 p-6 md:p-8 rounded-3xl flex flex-col items-center justify-center shadow-inner border-4 border-purple-700">
-                        <h4 id="panel-name-3" class="text-purple-200 font-black text-4xl mb-6 tracking-wide drop-shadow-md">第四組</h4>
-                        <div id="btns-3" class="flex flex-wrap justify-center gap-4"></div>
-                        <div id="status-3" class="mt-6 text-yellow-400 font-black text-3xl h-10 bg-black/30 px-6 py-2 rounded-xl">尚未選擇</div>
+                <!-- 分頁 A: 題目與選項 -->
+                <div id="page-question" class="flex flex-col h-full min-h-min">
+                    <h3 id="question-text" class="text-3xl lg:text-4xl text-gray-900 font-black leading-relaxed mb-6 tracking-wide">
+                        題目載入中...
+                    </h3>
+                    <div id="options-container" class="grid grid-cols-2 gap-4 mt-auto">
+                        <!-- 選項動態載入 -->
                     </div>
                 </div>
 
-                <div class="mt-10 flex flex-col md:flex-row gap-6 shrink-0">
-                    <button onclick="switchPage('question')" class="btn-press bg-gray-500 hover:bg-gray-600 text-white text-4xl md:text-5xl font-black py-6 px-10 rounded-3xl shadow-[0_8px_0_rgb(75,85,99)] w-full md:w-1/3">
+                <!-- 分頁 B: 鎖定答案面板 -->
+                <div id="page-lock" class="hidden flex-col h-full min-h-min">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-4xl font-black text-gray-800 tracking-wider border-l-8 border-blue-500 pl-4">各組鎖定答案</h3>
+                        <div id="multi-warning" class="hidden bg-purple-100 text-purple-800 px-4 py-2 rounded-lg font-bold text-xl border-2 border-purple-300">✨ 複選題，可選多選項！</div>
+                    </div>
+                    
+                    <div class="grid grid-cols-4 gap-4 flex-1">
+                        <div class="bg-blue-50 p-4 rounded-2xl flex flex-col items-center border-4 border-blue-200">
+                            <h4 id="panel-name-0" class="text-blue-800 font-black text-2xl mb-4">第一組</h4>
+                            <div id="btns-0" class="flex flex-wrap justify-center gap-2 mb-4"></div>
+                            <div id="status-0" class="mt-auto text-gray-500 font-bold text-xl h-10 w-full bg-white rounded-lg flex items-center justify-center border border-gray-200">尚未選擇</div>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-2xl flex flex-col items-center border-4 border-red-200">
+                            <h4 id="panel-name-1" class="text-red-800 font-black text-2xl mb-4">第二組</h4>
+                            <div id="btns-1" class="flex flex-wrap justify-center gap-2 mb-4"></div>
+                            <div id="status-1" class="mt-auto text-gray-500 font-bold text-xl h-10 w-full bg-white rounded-lg flex items-center justify-center border border-gray-200">尚未選擇</div>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-2xl flex flex-col items-center border-4 border-green-200">
+                            <h4 id="panel-name-2" class="text-green-800 font-black text-2xl mb-4">第三組</h4>
+                            <div id="btns-2" class="flex flex-wrap justify-center gap-2 mb-4"></div>
+                            <div id="status-2" class="mt-auto text-gray-500 font-bold text-xl h-10 w-full bg-white rounded-lg flex items-center justify-center border border-gray-200">尚未選擇</div>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-2xl flex flex-col items-center border-4 border-purple-200">
+                            <h4 id="panel-name-3" class="text-purple-800 font-black text-2xl mb-4">第四組</h4>
+                            <div id="btns-3" class="flex flex-wrap justify-center gap-2 mb-4"></div>
+                            <div id="status-3" class="mt-auto text-gray-500 font-bold text-xl h-10 w-full bg-white rounded-lg flex items-center justify-center border border-gray-200">尚未選擇</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer: 底部按鈕 (不捲動) -->
+            <div class="shrink-0 bg-gray-100 border-t border-gray-300 p-4 flex gap-4">
+                <!-- 題目頁底部按鈕 -->
+                <button id="btn-to-lock" onclick="switchPage('lock')" class="btn-press bg-blue-600 hover:bg-blue-700 text-white text-2xl font-black py-4 rounded-xl shadow-md w-full tracking-wider">
+                    進入鎖定答案面板 ➡️
+                </button>
+                
+                <!-- 鎖定頁底部按鈕 (預設隱藏) -->
+                <div id="footer-lock-btns" class="hidden w-full flex gap-4">
+                    <button onclick="switchPage('question')" class="btn-press bg-gray-500 hover:bg-gray-600 text-white text-2xl font-black py-4 rounded-xl shadow-md w-1/3">
                         ⬅️ 回看題目
                     </button>
-                    <button onclick="submitAnswers()" id="submit-btn" class="btn-press bg-yellow-500 hover:bg-yellow-600 text-black text-4xl md:text-6xl font-black py-6 px-10 rounded-3xl shadow-[0_10px_0_rgb(161,98,7)] w-full md:w-2/3 opacity-50 cursor-not-allowed">
+                    <button onclick="submitAnswers()" id="submit-btn" class="btn-press bg-yellow-500 hover:bg-yellow-600 text-gray-900 text-2xl font-black py-4 rounded-xl shadow-md w-2/3 opacity-50 cursor-not-allowed">
                         請各組鎖定後送出
                     </button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- ==================== 畫面 3：公布解答與結算 ==================== -->
-        <div id="result-screen" class="hidden w-full flex-col h-full mt-2 fade-in">
-            <!-- 解答橫幅 (可滾動) -->
-            <div class="bg-green-700 text-white p-6 md:p-10 rounded-3xl shadow-2xl mb-4 border-4 border-white flex flex-col shrink-0 max-h-[60vh] overflow-y-auto hide-scrollbar">
-                <div class="flex items-center gap-6 mb-6">
-                    <h2 id="result-bingo-title" class="text-3xl md:text-5xl font-black text-yellow-300 bg-black/50 px-8 py-3 rounded-full border-2 border-yellow-500 shadow-md">賓果標題</h2>
-                    <span class="text-3xl md:text-4xl font-bold bg-white/20 px-6 py-2 rounded-xl">正確答案：</span>
-                </div>
-                <p id="correct-answer-text" class="text-4xl md:text-6xl font-black mb-8 text-yellow-100 leading-snug border-b-4 border-green-500 pb-6">正確選項</p>
-                <div id="explanation-text" class="text-2xl md:text-4xl lg:text-5xl bg-green-900/60 p-8 rounded-3xl text-left font-bold w-full leading-normal shadow-inner border-2 border-green-600">
-                    解說內容...
-                </div>
+    <!-- ==================== 懸浮視窗 2：看解釋與結算 (Modal) ==================== -->
+    <div id="modal-explanation" class="hidden fixed inset-0 z-50 modal-overlay flex flex-col items-center justify-center p-6 lg:p-12 pop-in">
+        <div class="bg-white rounded-3xl w-full h-full max-w-7xl max-h-full flex flex-col relative shadow-2xl overflow-hidden border-4 border-green-600">
+            <button onclick="closeModal('modal-explanation')" class="absolute top-4 right-6 text-gray-400 hover:text-red-500 transition-colors z-50 font-black text-4xl leading-none">✖</button>
+            
+            <!-- Header -->
+            <div class="shrink-0 bg-green-50 border-b-2 border-green-200 p-4 flex items-center">
+                <h2 id="result-bingo-title" class="text-2xl font-black text-green-900 bg-green-200 px-6 py-2 rounded-full border border-green-400 ml-2">賓果標題</h2>
             </div>
 
-            <!-- 四組結算 -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 w-full shrink-0 mb-6">
-                <div class="bg-white p-6 rounded-3xl shadow-xl border-t-8 border-blue-500 text-center">
-                    <h4 id="res-name-0" class="text-3xl font-black text-blue-800 mb-2">一組</h4>
-                    <p class="text-xl text-gray-500 mb-2 bg-gray-100 rounded-lg py-1 truncate">選: <span id="res-choice-0" class="font-bold text-black"></span></p>
-                    <div id="outcome-0" class="text-4xl md:text-5xl font-black h-16 flex items-center justify-center">結果</div>
+            <!-- Body: 解說與結算 -->
+            <div class="flex-1 overflow-y-auto p-6 bg-white flex flex-col gap-6">
+                <!-- 上半部：解答與解說 (左右佈局) -->
+                <div class="flex flex-row gap-6 shrink-0 min-h-[40vh]">
+                    <!-- 左半部：正確選項 -->
+                    <div class="w-1/3 bg-green-700 text-white rounded-2xl p-6 shadow-md flex flex-col">
+                        <div class="bg-white/20 px-4 py-2 rounded-lg text-center mb-4 border border-white/30 inline-block mx-auto">
+                            <span class="text-xl font-bold tracking-widest">✅ 正確答案</span>
+                        </div>
+                        <div class="flex-1 flex items-center justify-center text-center">
+                            <p id="correct-answer-text" class="text-3xl font-black text-yellow-300 leading-snug break-words">正確選項</p>
+                        </div>
+                    </div>
+
+                    <!-- 右半部：解說內容 -->
+                    <div class="w-2/3 bg-gray-50 border-2 border-gray-200 rounded-2xl p-6 shadow-inner flex flex-col">
+                        <h3 class="text-xl font-bold text-gray-500 mb-3 flex items-center gap-2 border-b border-gray-300 pb-2">
+                            <span>📝</span> 詳細解說
+                        </h3>
+                        <div class="flex-1 overflow-y-auto hide-scrollbar">
+                            <div id="explanation-text" class="text-2xl text-gray-800 font-bold leading-relaxed">
+                                解說內容...
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white p-6 rounded-3xl shadow-xl border-t-8 border-red-500 text-center">
-                    <h4 id="res-name-1" class="text-3xl font-black text-red-800 mb-2">二組</h4>
-                    <p class="text-xl text-gray-500 mb-2 bg-gray-100 rounded-lg py-1 truncate">選: <span id="res-choice-1" class="font-bold text-black"></span></p>
-                    <div id="outcome-1" class="text-4xl md:text-5xl font-black h-16 flex items-center justify-center">結果</div>
-                </div>
-                <div class="bg-white p-6 rounded-3xl shadow-xl border-t-8 border-green-500 text-center">
-                    <h4 id="res-name-2" class="text-3xl font-black text-green-800 mb-2">三組</h4>
-                    <p class="text-xl text-gray-500 mb-2 bg-gray-100 rounded-lg py-1 truncate">選: <span id="res-choice-2" class="font-bold text-black"></span></p>
-                    <div id="outcome-2" class="text-4xl md:text-5xl font-black h-16 flex items-center justify-center">結果</div>
-                </div>
-                <div class="bg-white p-6 rounded-3xl shadow-xl border-t-8 border-purple-500 text-center">
-                    <h4 id="res-name-3" class="text-3xl font-black text-purple-800 mb-2">四組</h4>
-                    <p class="text-xl text-gray-500 mb-2 bg-gray-100 rounded-lg py-1 truncate">選: <span id="res-choice-3" class="font-bold text-black"></span></p>
-                    <div id="outcome-3" class="text-4xl md:text-5xl font-black h-16 flex items-center justify-center">結果</div>
+
+                <!-- 下半部：結算結果區塊 (橫排 4 欄) -->
+                <div class="grid grid-cols-4 gap-4 mt-auto">
+                    <div class="bg-blue-50 p-4 rounded-xl shadow border border-blue-200 text-center">
+                        <h4 id="res-name-0" class="text-2xl font-black text-blue-800 mb-2 truncate">一組</h4>
+                        <p class="text-sm text-gray-500 mb-2 bg-white rounded py-1 border border-gray-200 truncate">選: <span id="res-choice-0" class="font-bold text-black"></span></p>
+                        <div id="outcome-0" class="text-2xl font-black h-10 flex items-center justify-center">結果</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-xl shadow border border-red-200 text-center">
+                        <h4 id="res-name-1" class="text-2xl font-black text-red-800 mb-2 truncate">二組</h4>
+                        <p class="text-sm text-gray-500 mb-2 bg-white rounded py-1 border border-gray-200 truncate">選: <span id="res-choice-1" class="font-bold text-black"></span></p>
+                        <div id="outcome-1" class="text-2xl font-black h-10 flex items-center justify-center">結果</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-xl shadow border border-green-200 text-center">
+                        <h4 id="res-name-2" class="text-2xl font-black text-green-800 mb-2 truncate">三組</h4>
+                        <p class="text-sm text-gray-500 mb-2 bg-white rounded py-1 border border-gray-200 truncate">選: <span id="res-choice-2" class="font-bold text-black"></span></p>
+                        <div id="outcome-2" class="text-2xl font-black h-10 flex items-center justify-center">結果</div>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-xl shadow border border-purple-200 text-center">
+                        <h4 id="res-name-3" class="text-2xl font-black text-purple-800 mb-2 truncate">四組</h4>
+                        <p class="text-sm text-gray-500 mb-2 bg-white rounded py-1 border border-gray-200 truncate">選: <span id="res-choice-3" class="font-bold text-black"></span></p>
+                        <div id="outcome-3" class="text-2xl font-black h-10 flex items-center justify-center">結果</div>
+                    </div>
                 </div>
             </div>
-
-            <!-- 底部動作按鈕 -->
-            <div class="mt-auto flex flex-col md:flex-row gap-6 shrink-0 mb-2">
-                <button onclick="openStealModal()" class="btn-press bg-purple-600 hover:bg-purple-700 text-white text-4xl md:text-5xl font-black py-6 px-10 rounded-3xl shadow-lg w-full md:w-1/3 flex items-center justify-center gap-4">
-                    🏃‍♂️ 我要盜壘
-                </button>
-                <button onclick="nextQuestion()" class="btn-press bg-blue-600 hover:bg-blue-700 text-white text-4xl md:text-5xl font-black py-6 px-10 rounded-3xl shadow-lg w-full md:w-2/3">
-                    下一球 / 繼續 ➡️
-                </button>
+            
+            <!-- Footer (保留空間給使用者關閉或點擊外部) -->
+            <div class="shrink-0 bg-gray-100 border-t border-gray-300 p-3 text-center text-gray-500 text-sm">
+                請點擊右上角關閉視窗，準備進行下一球
             </div>
         </div>
+    </div>
 
-        <!-- ==================== 盜壘任務彈出層 ==================== -->
-        <div id="steal-modal" class="hidden absolute inset-0 z-40 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-            <div class="bg-purple-100 p-10 md:p-14 rounded-[3rem] shadow-2xl max-w-5xl w-full text-center border-8 border-purple-500 pop-in flex flex-col max-h-[95vh]">
-                <h3 class="text-5xl md:text-6xl font-black text-purple-800 mb-8 shrink-0 drop-shadow-sm">🗣️ 盜壘小任務</h3>
-                <div id="steal-task-text" class="text-4xl md:text-5xl font-bold text-gray-900 bg-white p-10 rounded-3xl border-4 border-purple-400 mb-10 shadow-inner overflow-y-auto leading-relaxed text-left">
+    <!-- ==================== 懸浮視窗 3：盜壘任務 (Modal) ==================== -->
+    <div id="steal-modal" class="hidden fixed inset-0 z-[60] modal-overlay flex items-center justify-center p-6 pop-in">
+        <div class="bg-purple-50 rounded-3xl w-full max-w-5xl flex flex-col relative shadow-2xl overflow-hidden border-4 border-purple-400">
+            <button onclick="closeModal('steal-modal')" class="absolute top-4 right-6 text-gray-400 hover:text-red-500 transition-colors z-[70] font-black text-4xl leading-none">✖</button>
+            
+            <!-- Header -->
+            <div class="shrink-0 bg-purple-200 p-4 text-center">
+                <h3 class="text-3xl font-black text-purple-800 tracking-wider">🗣️ 盜壘小任務</h3>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6 md:p-8 flex flex-col gap-6">
+                <div id="steal-task-text" class="text-2xl md:text-3xl font-bold text-gray-800 bg-white p-6 rounded-2xl border-2 border-purple-200 shadow-sm leading-relaxed text-center">
                     任務內容...
                 </div>
-                <p class="text-3xl text-gray-700 mb-6 font-bold shrink-0 bg-purple-200 py-3 rounded-xl border-2 border-purple-300">請選擇盜壘成功的隊伍 (可複選)：</p>
-                <div class="grid grid-cols-2 gap-6 mb-10 shrink-0 text-left px-4 md:px-16">
-                    <label class="flex items-center space-x-6 text-3xl md:text-4xl font-bold p-4 bg-white rounded-2xl border-4 border-gray-300 cursor-pointer shadow-sm hover:bg-gray-50">
-                        <input type="checkbox" id="chk-steal-0" class="w-10 h-10 text-purple-600"><span id="lbl-steal-0">一組</span>
-                    </label>
-                    <label class="flex items-center space-x-6 text-3xl md:text-4xl font-bold p-4 bg-white rounded-2xl border-4 border-gray-300 cursor-pointer shadow-sm hover:bg-gray-50">
-                        <input type="checkbox" id="chk-steal-1" class="w-10 h-10 text-purple-600"><span id="lbl-steal-1">二組</span>
-                    </label>
-                    <label class="flex items-center space-x-6 text-3xl md:text-4xl font-bold p-4 bg-white rounded-2xl border-4 border-gray-300 cursor-pointer shadow-sm hover:bg-gray-50">
-                        <input type="checkbox" id="chk-steal-2" class="w-10 h-10 text-purple-600"><span id="lbl-steal-2">三組</span>
-                    </label>
-                    <label class="flex items-center space-x-6 text-3xl md:text-4xl font-bold p-4 bg-white rounded-2xl border-4 border-gray-300 cursor-pointer shadow-sm hover:bg-gray-50">
-                        <input type="checkbox" id="chk-steal-3" class="w-10 h-10 text-purple-600"><span id="lbl-steal-3">四組</span>
-                    </label>
-                </div>
-                <div class="flex gap-6 shrink-0 mt-auto">
-                    <button onclick="closeStealModal(false)" class="btn-press flex-1 bg-gray-500 hover:bg-gray-600 text-white text-4xl font-black py-6 rounded-3xl shadow-md">取消 / 關閉</button>
-                    <button onclick="closeStealModal(true)" class="btn-press flex-1 bg-green-600 hover:bg-green-700 text-white text-4xl font-black py-6 rounded-3xl shadow-lg">✅ 確認送出得分</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ==================== 特殊事件畫面 (應援/休息) ==================== -->
-        <div id="event-screen" class="hidden absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-md p-4 text-center pop-in">
-            <div id="confetti-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
-            <h2 id="event-title" class="text-7xl md:text-[10rem] font-black text-yellow-400 mb-10 drop-shadow-[0_0_30px_rgba(250,204,21,0.9)] tracking-widest">應援時間！</h2>
-            <p id="event-desc" class="text-4xl md:text-6xl text-white font-bold mb-16 tracking-wide">大家一起動起來！</p>
-            <button onclick="endEventScreen()" class="btn-press bg-blue-600 hover:bg-blue-700 text-white text-5xl md:text-6xl font-black py-8 px-24 rounded-full shadow-[0_12px_0_rgb(30,58,138)] z-10 tracking-widest">
-                繼續比賽 ⚾
-            </button>
-        </div>
-
-        <!-- ==================== 畫面 4：比賽結束 ==================== -->
-        <div id="end-screen" class="hidden text-center fade-in bg-white/95 p-10 md:p-16 rounded-[3rem] shadow-2xl w-full max-w-6xl border-t-8 border-yellow-500 my-auto overflow-y-auto hide-scrollbar">
-            <div class="text-8xl mb-6">🏆</div>
-            <h2 class="text-6xl font-black text-gray-800 mb-12 tracking-wider">比賽結束！總結算</h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-                <!-- 動態生成結束卡片 -->
-                <div class="bg-blue-50 p-8 rounded-3xl border-4 border-blue-300 shadow-md">
-                    <h3 id="end-name-0" class="text-4xl font-black text-blue-800 mb-4">一組</h3>
-                    <p class="text-7xl font-black text-blue-600 mb-4"><span id="end-pts-0">0</span>分</p>
-                    <p class="text-2xl font-bold text-gray-500 bg-white py-2 rounded-xl border-2 border-blue-200">安打: <span id="end-hits-0">0</span></p>
-                </div>
-                <div class="bg-red-50 p-8 rounded-3xl border-4 border-red-300 shadow-md">
-                    <h3 id="end-name-1" class="text-4xl font-black text-red-800 mb-4">二組</h3>
-                    <p class="text-7xl font-black text-red-600 mb-4"><span id="end-pts-1">0</span>分</p>
-                    <p class="text-2xl font-bold text-gray-500 bg-white py-2 rounded-xl border-2 border-red-200">安打: <span id="end-hits-1">0</span></p>
-                </div>
-                <div class="bg-green-50 p-8 rounded-3xl border-4 border-green-300 shadow-md">
-                    <h3 id="end-name-2" class="text-4xl font-black text-green-800 mb-4">三組</h3>
-                    <p class="text-7xl font-black text-green-600 mb-4"><span id="end-pts-2">0</span>分</p>
-                    <p class="text-2xl font-bold text-gray-500 bg-white py-2 rounded-xl border-2 border-green-200">安打: <span id="end-hits-2">0</span></p>
-                </div>
-                <div class="bg-purple-50 p-8 rounded-3xl border-4 border-purple-300 shadow-md">
-                    <h3 id="end-name-3" class="text-4xl font-black text-purple-800 mb-4">四組</h3>
-                    <p class="text-7xl font-black text-purple-600 mb-4"><span id="end-pts-3">0</span>分</p>
-                    <p class="text-2xl font-bold text-gray-500 bg-white py-2 rounded-xl border-2 border-purple-200">安打: <span id="end-hits-3">0</span></p>
+                
+                <div class="bg-white p-4 rounded-2xl border border-gray-200">
+                    <p class="text-lg text-purple-900 font-bold mb-3 text-center">請選擇盜壘成功的隊伍 (可複選)：</p>
+                    <div class="grid grid-cols-4 gap-4">
+                        <label class="flex items-center justify-center space-x-2 text-xl font-bold p-3 bg-gray-50 rounded-xl border border-gray-300 cursor-pointer hover:bg-purple-100 transition-colors">
+                            <input type="checkbox" id="chk-steal-0" class="w-6 h-6 text-purple-600"><span id="lbl-steal-0" class="truncate">一組</span>
+                        </label>
+                        <label class="flex items-center justify-center space-x-2 text-xl font-bold p-3 bg-gray-50 rounded-xl border border-gray-300 cursor-pointer hover:bg-purple-100 transition-colors">
+                            <input type="checkbox" id="chk-steal-1" class="w-6 h-6 text-purple-600"><span id="lbl-steal-1" class="truncate">二組</span>
+                        </label>
+                        <label class="flex items-center justify-center space-x-2 text-xl font-bold p-3 bg-gray-50 rounded-xl border border-gray-300 cursor-pointer hover:bg-purple-100 transition-colors">
+                            <input type="checkbox" id="chk-steal-2" class="w-6 h-6 text-purple-600"><span id="lbl-steal-2" class="truncate">三組</span>
+                        </label>
+                        <label class="flex items-center justify-center space-x-2 text-xl font-bold p-3 bg-gray-50 rounded-xl border border-gray-300 cursor-pointer hover:bg-purple-100 transition-colors">
+                            <input type="checkbox" id="chk-steal-3" class="w-6 h-6 text-purple-600"><span id="lbl-steal-3" class="truncate">四組</span>
+                        </label>
+                    </div>
                 </div>
             </div>
-            <h3 class="text-5xl font-bold text-gray-700 mb-6 tracking-widest">比賽得分最高</h3>
-            <p id="winner-announcement" class="text-7xl md:text-8xl font-black text-red-600 animate-pulse mb-12 drop-shadow-md">🎉 冠軍 🎉</p>
-            <button onclick="location.reload()" class="btn-press bg-green-600 hover:bg-green-700 text-white text-5xl font-black py-8 px-24 rounded-full shadow-[0_10px_0_rgb(20,83,45)] tracking-widest">🔄 重新比賽</button>
-        </div>
 
-    </main>
+            <!-- Footer -->
+            <div class="shrink-0 bg-gray-100 p-4 flex gap-4 border-t border-gray-300">
+                <button onclick="closeStealModal(false)" class="btn-press flex-1 bg-gray-500 hover:bg-gray-600 text-white text-2xl font-black py-3 rounded-xl shadow-sm">取消 / 關閉</button>
+                <button onclick="closeStealModal(true)" class="btn-press flex-1 bg-green-600 hover:bg-green-700 text-white text-2xl font-black py-3 rounded-xl shadow-sm">✅ 確認送出得分</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 特殊事件畫面 (應援/休息) ==================== -->
+    <div id="event-screen" class="hidden absolute inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 backdrop-blur-md p-4 text-center pop-in">
+        <div id="confetti-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+        <h2 id="event-title" class="text-6xl md:text-8xl font-black text-yellow-400 mb-8 drop-shadow-lg tracking-widest">應援時間！</h2>
+        <p id="event-desc" class="text-4xl md:text-5xl text-white font-bold mb-12 tracking-wide">大家一起動起來！</p>
+        <button onclick="endEventScreen()" class="btn-press bg-blue-600 hover:bg-blue-700 text-white text-4xl md:text-5xl font-black py-6 px-16 rounded-full shadow-lg z-10 tracking-widest border-4 border-blue-400">
+            繼續比賽 ⚾
+        </button>
+    </div>
+
+    <!-- ==================== 畫面 4：比賽結束 ==================== -->
+    <div id="end-screen" class="hidden absolute inset-0 z-[100] flex flex-col items-center justify-center text-center fade-in bg-white/95 p-8 border-8 border-yellow-500 overflow-y-auto hide-scrollbar">
+        <div id="end-confetti-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+        <div class="text-6xl md:text-8xl mb-4 z-10 leading-none">🏆</div>
+        <h2 class="text-5xl md:text-6xl font-black text-gray-800 mb-8 tracking-wider z-10">比賽結束！總結算</h2>
+        
+        <!-- 橫向並排 -->
+        <div class="grid grid-cols-4 gap-6 w-full max-w-6xl mb-10 z-10">
+            <div class="bg-blue-50 p-6 rounded-3xl border-4 border-blue-300 shadow-xl flex flex-col justify-center">
+                <h3 id="end-name-0" class="text-3xl font-black text-blue-800 mb-4 truncate">一組</h3>
+                <p class="text-6xl font-black text-blue-600 mb-4 leading-none drop-shadow"><span id="end-pts-0">0</span><span class="text-2xl">分</span></p>
+                <p class="text-xl font-bold text-gray-500 bg-white py-2 rounded-xl border-2 border-blue-200">安打: <span id="end-hits-0">0</span></p>
+            </div>
+            <div class="bg-red-50 p-6 rounded-3xl border-4 border-red-300 shadow-xl flex flex-col justify-center">
+                <h3 id="end-name-1" class="text-3xl font-black text-red-800 mb-4 truncate">二組</h3>
+                <p class="text-6xl font-black text-red-600 mb-4 leading-none drop-shadow"><span id="end-pts-1">0</span><span class="text-2xl">分</span></p>
+                <p class="text-xl font-bold text-gray-500 bg-white py-2 rounded-xl border-2 border-red-200">安打: <span id="end-hits-1">0</span></p>
+            </div>
+            <div class="bg-green-50 p-6 rounded-3xl border-4 border-green-300 shadow-xl flex flex-col justify-center">
+                <h3 id="end-name-2" class="text-3xl font-black text-green-800 mb-4 truncate">三組</h3>
+                <p class="text-6xl font-black text-green-600 mb-4 leading-none drop-shadow"><span id="end-pts-2">0</span><span class="text-2xl">分</span></p>
+                <p class="text-xl font-bold text-gray-500 bg-white py-2 rounded-xl border-2 border-green-200">安打: <span id="end-hits-2">0</span></p>
+            </div>
+            <div class="bg-purple-50 p-6 rounded-3xl border-4 border-purple-300 shadow-xl flex flex-col justify-center">
+                <h3 id="end-name-3" class="text-3xl font-black text-purple-800 mb-4 truncate">四組</h3>
+                <p class="text-6xl font-black text-purple-600 mb-4 leading-none drop-shadow"><span id="end-pts-3">0</span><span class="text-2xl">分</span></p>
+                <p class="text-xl font-bold text-gray-500 bg-white py-2 rounded-xl border-2 border-purple-200">安打: <span id="end-hits-3">0</span></p>
+            </div>
+        </div>
+        <h3 class="text-3xl font-bold text-gray-700 mb-4 tracking-widest z-10 bg-white/80 px-6 py-2 rounded-full border border-gray-300">比賽得分最高</h3>
+        <p id="winner-announcement" class="text-6xl md:text-8xl font-black text-red-600 animate-pulse mb-8 drop-shadow z-10">🎉 冠軍 🎉</p>
+        <button onclick="location.reload()" class="btn-press bg-green-600 hover:bg-green-700 text-white text-4xl font-black py-4 px-16 rounded-full shadow-lg tracking-widest z-10 border-4 border-green-400">🔄 重新比賽</button>
+    </div>
 
     <script>
-        // --- 完整忠於原版PDF的25題題庫 (完全不更動敘述) ---
+        // --- 題庫與小任務資料保持不變 ---
         const questionsData = [
             { bingoTitle: '府前直播應援', isDemo: true, isMulti: false,
               question: '2026年世界棒球經典賽在3月開打，掀起台灣的棒球熱潮！為了幫台灣英雄集氣，台中市政府在府前廣場舉辦什麼活動，讓市民可以聚在一起吶喊？',
               options: ['市民烤肉大會', '大螢幕直播應援派對', '露天電影院'], correct: [2],
               explanation: '台中是著名的「棒球之都」。每逢WBC 這種重大國際賽,市府就會在廣場架設大螢幕辦理直播,並邀請啦啦隊到場,營造「台式應援」的熱血氛圍,讓沒買到球票的市民也能感受現場的震撼。' },
-            
             { bingoTitle: '中東局勢緊張', isMulti: false,
               question: '最近新聞經常報導的美伊戰爭，從美國在2/28發動軍事行動開始，一直到現在衝突仍持續上演。請問這場衝突主要牽涉到的國家，除了美國與以色列之外，另外一個最主要的參與國家是誰？',
               options: ['伊拉克', '伊朗', '伊比利半島'], correct: [2],
               explanation: '這場衝突的核心是美國、以色列與伊朗三方之間的長期對立，而戰爭的導火線是2月26日日內瓦第三次核談判破裂。美國與以色列研判外交路徑告終，於2月28日清晨發動「咆哮雄獅行動」。雖然「伊拉克」的名字聽起來很像，但它是伊朗的鄰國，並非此次衝突的主角。這三個國家的關係直接牽動著全球的安定，因為中東地區就像是世界的「心臟」，一旦這三方發生摩擦，全世界的政治與經濟都會跟著緊張。' },
-            
             { bingoTitle: '台中都更補助', isMulti: false,
               question: '台中市今年編列1000萬元預算，提供民眾申請「都市更新整建維護補助」，補助對象包含公寓大廈管委會、都市更新團體或機構。建築須位於都市計畫住宅區或商業區，且屋齡達20年以上。請問以下何者不是補助內容？',
               options: ['社區道路綠美化', '增設電梯', '耐震補強', '浴廁漏水翻新'], correct: [4],
               explanation: '這項補助的宗旨在於改善「公共安全」與「都市市容」。因此，補助的項目都圍繞在建築物的外觀(外牆拉皮)、公共空間的升級(增設電梯、無障礙設施)以及結構安全(耐震補強)。至於住戶「私人室內」的裝潢或修繕，是不在補助範圍內的喔！' },
-            
             { bingoTitle: '2026經典賽場地', isMulti: false,
               question: '2026年世界棒球經典賽(WBC)在3月隆重登場。請問今年中華隊所屬的「C組預賽」在哪一個亞洲城市舉行？',
               options: ['首爾', '東京', '上海'], correct: [2],
               explanation: '世界棒球經典賽(WBC)是由美國職棒大聯盟主辦的國際賽事，每四年舉辦一次。2026年在全球四個城市同步開打，分別是日本東京、波多黎各聖胡安，以及美國的休士頓與邁阿密。中華隊這次被分配在東京組，必須與日本、韓國等亞洲強權爭奪分組前兩名的晉級資格。東京巨蛋對台灣球員來說是充滿回憶與挑戰的聖地，場內不但有舒適的室內草皮，還有著名的氣壓調節系統，能在那裡打球是許多運動員的夢想。' },
-            
             { bingoTitle: '台中敬老愛心卡', isMulti: false,
               question: '台中市政府發的敬老愛心卡是政府提供65歲以上長輩的福利，下列哪些是敬老愛心卡可以使用的福利內容？<br>甲、65歲以上的台中市民即可申請<br>乙、不管到醫院或是診所看診都可以折扣50元<br>丙、可以用來搭計程車，一趟補助85元<br>丁、每個月有1000點可以用來搭公車、客運<br>戊、可以半價搭乘普悠瑪列車到東部',
               options: ['甲乙', '甲乙丙', '乙丁戊', '甲丙丁'], correct: [4],
               explanation: '敬老愛心卡是提供給65歲以上的長輩使用的福利，每月有1000點可使用。主要可運用在交通方面，大眾運輸工具如公車、客運、捷運、台鐵都可以直接刷卡扣款使用，計程車則每趟補助85元。要注意台鐵不是每一種列車都可以搭乘，觀光列車、團體列車、太魯閣及普悠瑪列車、3000型自強號(騰雲號)及一些臺鐵指定列車不可使用愛心卡，而客運、計程車也只有合作的店家以及指定路線可以使用，長輩們在使用敬老愛心卡時要特別注意喔！另外，愛心卡在看病時也可以享用折扣50元的福利，但僅限於衛生所以及合作的診所可使用，到醫院看診沒有這項福利喔。' },
-            
             { bingoTitle: '自立支援觀念', isMulti: true,
               question: '俗話說「活到老、學到老」、「要活就要動」，日本現在流行一種「自立支援」的方法，鼓勵長輩可以自己做到的事情就不要依靠照顧者。請問下列哪些方式符合「自立支援」的概念？<br>(1)多到社區參加活動、定時做運動也要喝足夠的水<br>(2)因為走路膝蓋會痛，沒事盡量坐著休息<br>(3)有請外籍移工很方便，什麼事情都讓他幫忙<br>(4)食物不要隔餐、隔夜吃，每餐吃的營養均衡',
               options: ['多到社區參加活動、定時做運動也要喝足夠的水', '因為走路膝蓋會痛，沒事盡量坐著休息', '有請外籍移工很方便，什麼事情都讓他幫忙', '食物不要隔餐、隔夜吃，每餐吃的營養均衡'], correct: [1, 4], 
               explanation: '日本的教授說明「自立支援」的四個核心概念是：水、飲食、排便、走路。也就是：每天喝水1500毫升以上、吃進1500大卡的正常飲食、3天以內自然排便不靠瀉藥、以及每天走路2公里。日本政府也特別強調營養、口腔功能和運動是三個最關鍵的面向。確保長者攝取足夠的營養，有助於維持身體機能；維護良好的口腔功能，則能確保長者能夠有效咀嚼和吞嚥，從而吸收營養；鼓勵長者進行適度的運動，則有助於恢復和強化肌肉與神經的協調性。透過關注這三個面向，並提供相應的照顧和支持，長照機構能夠更有效地協助長者恢復自理能力，延緩失能。' },
-            
             { bingoTitle: '戰爭與油價', isHard: true, isMulti: false,
               question: '戰爭爆發時，國際油價往往會飆漲，下列何者不是原因之一？',
               options: ['煉油廠、輸油管線被炸毀，導致原油無法生產', '航道被封鎖，油輪無法通行', '金融市場恐慌大量拋售', '國際航運保費暴增'], correct: [3],
               explanation: '戰爭帶來極大的不確定性。金融市場預期未來石油會短缺，為了避免未來買到更貴的油，大家會搶著在今天買進原油期貨。煉油廠、輸油管線被炸毀導致原油無法生產、航道被封鎖、國際航運保費暴增也都是讓油價上升的原因。' },
-            
             { bingoTitle: '鄭習會', isMulti: false,
               question: '國民黨主席鄭麗文與中共總書記習近平4月10日在北京會面。以下關於鄭習會的敘述，何者不正確？',
               options: ['這是國共兩黨領導人繼洪習會之後，時隔10年再次會面。', '習近平表示在堅守九二共識，反對台獨的基礎上，願意與台灣加強交流，為兩岸謀和平。並強調民族認同與自主權。', '鄭麗文表示和平是兩岸共享的道德與價值，雙方應共同建構兩岸雙贏共榮的命運共同體。並在互信基礎上，增進台灣的國際活動空間。', '會面地點選在北京人民大會堂東大廳，通常帶有「兩岸一家親」的暗示。'], correct: [4],
               explanation: '國共兩黨的最高領導人會面，地點多選在北京人民大會堂的「福建廳」或「東大廳」。福建廳通常帶有「兩岸一家親」的暗示；東大廳則更具備國家級正式會談的莊重感。' },
-            
             { bingoTitle: '台灣移工現況', isMulti: false,
               question: '根據勞動部4月9日的說法，台灣與印度的勞務合作已進入最後行政確認階段，最快有機會在2026年內看到首批印度移工抵台。下列有關台灣移工的敘述，何者錯誤？',
               options: ['台灣移工的主要來源國有印尼、越南、菲律賓、印度', '印尼籍移工佔比最多(32.4萬)，主要從事社福領域工作', '目前移工的人力結構大致分為產業移工與社福移工兩大體系', '截至今年初，台灣移工總人數已突破87萬人'], correct: [1],
               explanation: '台灣移工的主要來源國有印尼、越南、菲律賓、泰國。「印度」是即將引進的新來源國，目前還未成為主要來源。' },
-            
             { bingoTitle: '測驗AI之眼(一)', isMulti: false,
-              question: '101台北市政府周圍淹水了？哪張才是「假」的照片？<br><div class="flex flex-col md:flex-row gap-6 mt-6 justify-center"><img src="https://lh3.googleusercontent.com/d/16RYlRitBl_otyhIsrDz-J1rrd5RZIl-1" class="w-full md:w-1/2 max-h-[35vh] object-contain rounded-2xl border-8 border-gray-400 shadow-lg"><img src="https://lh3.googleusercontent.com/d/1yR-NwnJ3TJrQoajexywFjJzefpASma16" class="w-full md:w-1/2 max-h-[35vh] object-contain rounded-2xl border-8 border-gray-400 shadow-lg"></div>',
+              question: '101台北市政府周圍淹水了？哪張才是「假」的照片？<br><div class="flex flex-row gap-4 mt-6 justify-center items-center"><img src="https://lh3.googleusercontent.com/d/16RYlRitBl_otyhIsrDz-J1rrd5RZIl-1" class="w-1/2 max-h-[30vh] object-contain rounded-xl border-4 border-gray-300 shadow"><img src="https://lh3.googleusercontent.com/d/1yR-NwnJ3TJrQoajexywFjJzefpASma16" class="w-1/2 max-h-[30vh] object-contain rounded-xl border-4 border-gray-300 shadow"></div>',
               options: ['圖一 (左/上)', '圖二 (右/下)', '都是真的'], correct: [2],
-              explanation: '<img src="https://lh3.googleusercontent.com/d/1-SaQ9XHDWGzzKZSsu2afaJWhs-y6Gqvc" class="max-h-[35vh] object-contain mx-auto rounded-3xl mb-6 border-4 border-white shadow-xl">【破綻】水態不合理市區不會有浪花；101大樓線條凹陷；路牌與背景糊在一起；不存在的路面標示。' },
-            
+              explanation: '<img src="https://lh3.googleusercontent.com/d/1-SaQ9XHDWGzzKZSsu2afaJWhs-y6Gqvc" class="max-h-[30vh] object-contain mx-auto rounded-xl mb-4 border-2 border-gray-200 shadow-md">【破綻】水態不合理市區不會有浪花；101大樓線條凹陷；路牌與背景糊在一起；不存在的路面標示。' },
             { bingoTitle: '測驗AI之眼(二)', isMulti: false,
-              question: '蠟筆小新主題公園？哪張才是「假」的照片？<br><div class="flex flex-col md:flex-row gap-6 mt-6 justify-center"><img src="https://lh3.googleusercontent.com/d/15lMV-QZwuMUed-wdmot11GsyuUO6RQlz" class="w-full md:w-1/2 max-h-[35vh] object-contain rounded-2xl border-8 border-gray-400 shadow-lg"><img src="https://lh3.googleusercontent.com/d/1URdPDa_jR7fJ-ElBnJKinpLJhDEcbY8K" class="w-full md:w-1/2 max-h-[35vh] object-contain rounded-2xl border-8 border-gray-400 shadow-lg"></div>',
+              question: '蠟筆小新主題公園？哪張才是「假」的照片？<br><div class="flex flex-row gap-4 mt-6 justify-center items-center"><img src="https://lh3.googleusercontent.com/d/15lMV-QZwuMUed-wdmot11GsyuUO6RQlz" class="w-1/2 max-h-[30vh] object-contain rounded-xl border-4 border-gray-300 shadow"><img src="https://lh3.googleusercontent.com/d/1URdPDa_jR7fJ-ElBnJKinpLJhDEcbY8K" class="w-1/2 max-h-[30vh] object-contain rounded-xl border-4 border-gray-300 shadow"></div>',
               options: ['圖三 (左/上)', '圖四 (右/下)', '都是真的'], correct: [1],
-              explanation: '<img src="https://lh3.googleusercontent.com/d/1GfT9GN9QU5MHd-AjRf6ZxKXNnUmymDvb" class="max-h-[35vh] object-contain mx-auto rounded-3xl mb-6 border-4 border-white shadow-xl">【破綻】道路大小不一被中斷；沙灘線沒有海浪；建築房屋過於平面形狀不自然。' },
-            
+              explanation: '<img src="https://lh3.googleusercontent.com/d/1GfT9GN9QU5MHd-AjRf6ZxKXNnUmymDvb" class="max-h-[30vh] object-contain mx-auto rounded-xl mb-4 border-2 border-gray-200 shadow-md">【破綻】道路大小不一被中斷；沙灘線沒有海浪；建築房屋過於平面形狀不自然。' },
             { bingoTitle: '長照3.0上線', isMulti: true,
               question: '下列關於長照3.0的相關敘述，哪些是正確的？<br>(1)如果有需要申請長照的服務，可以撥打1966專線<br>(2)長照3.0有提供「出院銜接」服務，讓住院的人可以在出院前 3-7天接受專業人員評估，讓有需要的人出院回家馬上就有長照服務可以用<br>(3)家裡如果有請外籍移工(外勞)照顧有需要的長者，仍可以在外籍移工請假失聯的時候申請照顧者喘息服務<br>(4)接送至長照機構或是醫療院所的交通服務，長照3.0將每趟100元提升補助到115元',
               options: ['如果有需要申請長照的服務，可以撥打1966專線', '長照3.0有提供「出院銜接」服務...', '家裡如果有請外籍移工(外勞)照顧有需要的長者...', '接送至長照機構或是醫療院所的交通服務，長照3.0將每趟100元提升補助到115元'], correct: [1, 2, 3, 4],
-              explanation: '長照3.0的目標是希望實現「健康老化、在地安老、安寧善終」的願景，題目中提到的敘述皆為長照3.0提供的重點項目：(1)1966是全國長照申請專線。(2)出院準備服務：長照3.0要求醫院在長輩出院前就完成評估，目標是讓長輩回家後「服務不中斷」。(3)放寬有請外籍看護的家庭相關福利，在移工休假、請假或空窗期時，可申請長照3.0的「喘息服務」，另外也有「互助喘息」服務換服務。(4)長照的交通接送服務，長照3.0開始每趟補助115元。除了上述幾點，長照3.0也整合了居家醫療與居家醫師方案推動共融照顧與共生社區、積極導入復能訓練、提高住宿式機構補助...等多項項目。<br><iframe src="https://www.youtube.com/embed/YzTIT2Xk5JQ" allowfullscreen class="w-full max-w-3xl aspect-video mx-auto mt-6 rounded-3xl shadow-xl border-4 border-green-500"></iframe>' },
-            
+              explanation: '長照3.0的目標是希望實現「健康老化、在地安老、安寧善終」的願景，題目中提到的敘述皆為長照3.0提供的重點項目：(1)1966是全國長照申請專線。(2)出院準備服務：長照3.0要求醫院在長輩出院前就完成評估，目標是讓長輩回家後「服務不中斷」。(3)放寬有請外籍看護的家庭相關福利，在移工休假、請假或空窗期時，可申請長照3.0的「喘息服務」，另外也有「互助喘息」服務換服務。(4)長照的交通接送服務，長照3.0開始每趟補助115元。除了上述幾點，長照3.0也整合了居家醫療與居家醫師方案推動共融照顧與共生社區、積極導入復能訓練、提高住宿式機構補助...等多項項目。<br><iframe src="https://www.youtube.com/embed/YzTIT2Xk5JQ" allowfullscreen class="w-full max-h-[30vh] mx-auto mt-4 rounded-xl shadow-md border-2 border-gray-200"></iframe>' },
             { bingoTitle: '營養照護與口腔保健', isMulti: false,
               question: '長照3.0增加了很多專業服務，如果長輩最近覺得東西咬不動、食物吞不下去，或者短時間內變瘦很多，請問申請下列哪些長照服務最符合這個需求及長照復能精神？<br>① 專業服務之營養照護-營養師<br>② 輔具租借服務-智慧科技輔具租借<br>③ 專業服務之進食與吞嚥照護-職能治療師<br>④ 接送服務一接送至醫院治療',
               options: ['②③', '①③', '②④'], correct: [2],
               explanation: '長照3.0擴增對營養照護的補助，代表我們的營養對健康非常的重要，如果長輩有吃東西方面的困難，或是因為營養的問題影響健康，可以申請長照3.0的專業服務，其中可以請營養師到家裏面幫忙設計符合您營養需求的餐點、教導照顧者怎麼準備這樣的餐點，如果有咬不動、咀嚼困難，也可以請職能治療師到家裡面教您口腔的運動、復建。長照3.0的特色之一是提供智慧科技輔具租借，但目前的智慧科技輔具主要提供移動、移位、沐浴排泄、居家照顧床及安全看視等5類，沒有口腔營養照護的相關智慧輔具；長照的精神之一是幫助長輩可以在最小的協助下自己過喜歡的生活，所以遇到生活相關問題，只要不是太嚴重的疾病，我們都可以先試者用長照的服務解決，不是所有問題都是疾病、不需要都跑到醫院看診喔！' },
-            
             { bingoTitle: '癌症篩檢擴大', isHard: true, isMulti: false,
               question: '2026年開始，衛福部將癌症篩檢從原本的5個項目新增為6個項目，請問下列哪一個癌症是新增的篩檢項目？',
               options: ['口腔癌', '大腸癌', '胃癌'], correct: [3],
-              explanation: '2026年衛福部擴大篩檢範圍，重點包含：1.胃癌(新增加)：45至74歲民眾，終身1次幽門螺旋桿菌糞便抗原檢測。2.肺癌(LDCT)：具家族史或重度吸菸者，每2年1次。3.大腸癌：45至74歲民眾，每2年1次糞便潛血檢查。4.乳癌：40至74歲女性，每2年1次乳房攝影。5.子宮頸癌：30歲以上每年1次抹片；35/45/65歲加碼HPV檢測。6.口腔癌：30歲以上有嚼檳榔(含已戒)或吸菸者，每2年1次。另外，65歲以上的長輩每年有1次的免費健康檢查，記得到醫院或診所定期檢查身體、保護身體健康喔！<br><img src="https://lh3.googleusercontent.com/d/1eLPsEKLtc6RbVLIoBdF6FObMf33SdC79" class="max-h-[40vh] object-contain mx-auto mt-6 rounded-3xl border-4 border-white shadow-xl">' },
-            
+              explanation: '2026年衛福部擴大篩檢範圍，重點包含：1.胃癌(新增加)：45至74歲民眾，終身1次幽門螺旋桿菌糞便抗原檢測。2.肺癌(LDCT)：具家族史或重度吸菸者，每2年1次。3.大腸癌：45至74歲民眾，每2年1次糞便潛血檢查。4.乳癌：40至74歲女性，每2年1次乳房攝影。5.子宮頸癌：30歲以上每年1次抹片；35/45/65歲加碼HPV檢測。6.口腔癌：30歲以上有嚼檳榔(含已戒)或吸菸者，每2年1次。另外，65歲以上的長輩每年有1次的免費健康檢查，記得到醫院或診所定期檢查身體、保護身體健康喔！<br><img src="https://lh3.googleusercontent.com/d/1eLPsEKLtc6RbVLIoBdF6FObMf33SdC79" class="max-h-[30vh] object-contain mx-auto mt-4 rounded-xl border-2 border-gray-200 shadow-md">' },
             { bingoTitle: '捷運藍線大串聯', isMulti: true,
               question: '捷運藍線在114年6月開工，請問關於捷運藍線的規劃，下列哪些敘述是正確的？(請選出所有正確選項)<br>(1)它是台中第二條捷運，會跟現有的「捷運綠線」形成十字交叉路網。<br>(2)這條路線會經過「台中火車站」，最後延伸到「新建國市場」。<br>(3)捷運藍線全線都是蓋在半空中(高架化)，完全沒有地下車站。<br>(4)通車後可以跟台鐵(火車)山線、海線車站轉乘，以後去台中港也很方便',
               options: ['它是台中第二條捷運，會跟現有的「捷運綠線」形成十字交叉路網。', '這條路線會經過「台中火車站」，最後延伸到「新建國市場」。', '捷運藍線全線都是蓋在半空中(高架化)，完全沒有地下車站。', '通車後可以跟台鐵(火車)山線、海線車站轉乘，以後去台中港也很方便'], correct: [1, 2, 4],
-              explanation: '• 串聯市區與海線：藍線全長24.78公里，從台中港開始，沿著最熱鬧的台灣大道一直到新建國市場。途中也經過台中火車站及沙鹿火車站，串連台中山線及海線地區。<br>• 轉乘中心：未來在台中火車站下車後，就可以直接轉乘捷運藍線。而在「捷運市政府站」，則可以轉乘原本的捷運綠線，去哪裡都很方便！<br>• 地下化規劃：為了不影響市中心景觀與交通，捷運進入市區段(包含火車站、中區周邊)主要是採取地下化施工，共有12個地下車站。<br><img src="https://lh3.googleusercontent.com/d/1YjptqfRYAG2yT-wlYXn26TPLawkNEv-9" class="max-h-[40vh] object-contain mx-auto mt-6 rounded-3xl border-4 border-white shadow-xl">' },
-            
+              explanation: '• 串聯市區與海線：藍線全長24.78公里，從台中港開始，沿著最熱鬧的台灣大道一直到新建國市場。途中也經過台中火車站及沙鹿火車站，串連台中山線及海線地區。<br>• 轉乘中心：未來在台中火車站下車後，就可以直接轉乘捷運藍線。而在「捷運市政府站」，則可以轉乘原本的捷運綠線，去哪裡都很方便！<br>• 地下化規劃：為了不影響市中心景觀與交通，捷運進入市區段(包含火車站、中區周邊)主要是採取地下化施工，共有12個地下車站。<br><img src="https://lh3.googleusercontent.com/d/1YjptqfRYAG2yT-wlYXn26TPLawkNEv-9" class="max-h-[30vh] object-contain mx-auto mt-4 rounded-xl border-2 border-gray-200 shadow-md">' },
             { bingoTitle: '外來種入侵', isMulti: false,
               question: '台灣近年來面臨許多備受關注的外來入侵種威脅，這些物種不僅衝擊生態平衡，也對農業、水域甚至大眾的日常生活造成嚴重影響。防堵外來種的核心挑戰，已從早期的「經濟與農業引進」，轉變為近年的「寵物市場棄養逸散」。請根據下列五種台灣知名的強勢外來種，依照其被引進或開始在野外大量擴張的年代(由早到晚)進行排序：<br>甲、大守宮 / 乙、小花蔓澤蘭 / 丙、綠鬣蜥&埃及聖䴉 / 丁、家八哥 / 戊、福壽螺',
               options: ['戊→乙→丁→丙→甲', '甲→乙→丙→丁→戊', '乙→丁→戊→丙→甲', '戊→丁→甲→乙→丙'], correct: [1],
               explanation: '戊、福壽螺(約1970年代末期)：早期以食用為目的引進，後因肉質不佳且有寄生蟲疑慮，遭棄置於水溝。福壽螺幾乎什麼植物都吃，嚴重啃食經濟作物。<br>乙、小花蔓澤蘭(約1980年代)：生長速度極快而被稱為綠色癌症，會大面積攀附樹木與植被，阻擋陽光導致本土植物無法行光合作用而枯死。<br>丁、家八哥/白尾八哥(約1980至1990年代)：極度適應都市環境，體型大且個性兇悍，壓縮台灣本土八哥的生存空間(本土八哥現已列入保育類)。群聚噪音與鳥糞亦造成市容衛生問題。<br>丙、綠鬣蜥&埃及聖䴉(約2000年代)：綠鬣蜥在南台灣氾濫，會吃農作物並挖洞破壞魚塭堤防。埃及聖䴉早期在西部濕地會與本土白鷺鷥爭奪空間與食物，近年經專案移除已近清零。<br>甲、大守宮(約2010年代迄今)：這兩周在高美館附近發現大量大守宮，其體型巨大且具強烈掠食性與領域性，會捕食本土昆蟲與小型爬蟲類，對原生物種造成生存壓力。' },
-            
             { bingoTitle: '認知作戰', isMulti: false,
               question: '認知作戰是透過散播假新聞、網軍帶風向，誤導民眾對政策或議題的判斷，進而影響一個社會對國際環境的理解。下列選項何錯誤？',
               options: ['台灣受假資訊攻擊的嚴重程度位居全球第一。', '中共對台發動資訊戰，假訊息數量從2024年的210萬則驟增至2026年單一季的1億7,328萬則。', '中共自2015年起設立解放軍戰略資源部網路系統部門，在臉書、YouTube、抖音、Line等各大社群平台，宣揚藏傳佛教。', '臺灣事實查核中心透過詳實的調查辨別訊息之真偽，查核的對象為網路及社群媒體中關注度最高的新聞。'], correct: [3],
               explanation: '中共自2015年起設立解放軍戰略資源部網路系統部門，在臉書、YouTube、抖音、Line等各大社群平台，透過散佈假消息以分裂國人彼此之信任。' },
-            
             { bingoTitle: '高雄春捲中毒案', isMulti: true,
               question: '清明連假高雄正義市場一家40年春捲攤傳出大規模食物中毒案，致病原為「沙門氏菌」。關於此類食安衛生與常見致病原特性，下列敘述何者正確？(請選出所有正確的選項)<br>(1)春捲因食材多且雜、有生菜與蛋白質提供細菌營養，成為細菌溫床。<br>(2)涼麵、生菜沙拉、壽司以及半熟蛋料理等，也是食物中毒的高風險食品。<br>(3)常見的不合格項目還包含黃麴毒素超標、農藥殘留，以及防腐劑超標。<br>(4)引發此次中毒的沙門氏菌非常脆弱，只要離開宿主或在乾燥環境中就會立刻死亡，傳播途徑僅限於食用生肉。<br>(5)沙門氏菌感染的主因通常是未煮熟海鮮，與禽畜類肉品或雞蛋較無關聯。',
               options: ['春捲因食材多且雜、有生菜與蛋白質提供細菌營養，成為細菌溫床。', '涼麵、生菜沙拉、壽司以及半熟蛋料理等，也是食物中毒的高風險食品。', '常見的不合格項目還包含黃麴毒素超標、農藥殘留，以及防腐劑超標。', '引發此次中毒的沙門氏菌非常脆弱，只要離開宿主或在乾燥環境中就會立刻死亡，傳播途徑僅限於食用生肉。', '沙門氏菌感染的主因通常是未煮熟海鮮，與禽畜類肉品或雞蛋較無關聯。'], correct: [1, 2, 3],
               explanation: '沙門氏菌的生命力極強，在乾燥環境中能存活數週，在水中甚至能存活數個月之久，因此環境與水源的清潔極為重要。若使用未經洗選的雞蛋，殘留於蛋殼上的雞糞易在打蛋過程中污染蛋液與周遭食材。' },
-            
             { bingoTitle: '中華隊尚勇', isMulti: false,
               question: '請問在2024年12強棒球賽及今年的棒球經典賽中，中華隊在有得分機會時演奏的「嗆司(chance)曲」是哪一首？',
               options: ['台灣尚勇', '今天的我', '就一起'], correct: [1],
-              explanation: '被稱為「台灣棒球新國歌」的《台灣尚勇》，原名為《統一尚勇》，是2013年由製作人吳坤龍老師為統一獅隊量身打造的「嗆司曲」(意指得分機會)。這首歌的設計初衷是為了展現台灣本土的草根韌性，因為旋律簡單、幾乎不需記歌詞，只要跟著節奏「喔」就能產生強大氣勢，因此在2024年12強奪冠與2026年經典賽中，成為全台跨球隊的應援指標。台灣的應援文化也從早期的大鼓、嗩吶，進化到現代結合電子音樂與啦啦隊女孩的「台式應援」，這股強大的觀賽氛圍讓國際媒體極為驚艷。<br><iframe src="https://www.youtube.com/embed/VWzQL9RuCfw" allowfullscreen class="w-full max-w-3xl aspect-video mx-auto mt-6 rounded-3xl shadow-xl border-4 border-green-500"></iframe>' },
-            
+              explanation: '被稱為「台灣棒球新國歌」的《台灣尚勇》，原名為《統一尚勇》，是2013年由製作人吳坤龍老師為統一獅隊量身打造的「嗆司曲」(意指得分機會)。這首歌的設計初衷是為了展現台灣本土的草根韌性，因為旋律簡單、幾乎不需記歌詞，只要跟著節奏「喔」就能產生強大氣勢，因此在2024年12強奪冠與2026年經典賽中，成為全台跨球隊的應援指標。台灣的應援文化也從早期的大鼓、嗩吶，進化到現代結合電子音樂與啦啦隊女孩的「台式應援」，這股強大的觀賽氛圍讓國際媒體極為驚艷。<br><iframe src="https://www.youtube.com/embed/VWzQL9RuCfw" allowfullscreen class="w-full max-h-[30vh] mx-auto mt-4 rounded-xl shadow-md border-2 border-gray-200"></iframe>' },
             { bingoTitle: '復能生活更有尊嚴', isMulti: false,
               question: '長照3.0重視「復能」的觀念，您知道「復能」是什麼意思嗎？下列那些想法或者是政策符合「復能」？<br>①只要我生病或是老了、退化了，就應該有人照顧我全部的生活起居，這樣才是有福氣的老年生活<br>②長照的資源是要拿來照顧我的，老了很多事情不方便就需要別人協助<br>③ 如果我不小心跌倒腳受傷，在恢復期間，可以請治療師到家裡教我怎麼用拐杖走路到市場買菜<br>④ 就算家裡的子女很孝順會照顧我、或是有看護協助我生活起居，我還是自己做到許多事，保持運動習慣、走出家門跟朋友相處',
               options: ['③④', '①③', '②④'], correct: [1],
               explanation: '長照3.0所重視的「復能」觀念，與傳統「有人服侍才是有福氣」的想法大不相同，正確答案為③與④。所謂「復能」，並不是要在醫院裡做枯燥的復健治療，而是強調「在自己的家裡，找回生活的能力」。它的核心精神是把長輩看作一個「有能力的人」，而不只是「被照顧的人」。透過職能或物理治療師到府指導，教導長輩如何運用現有的體力，配合輔具或居家環境的調整，重新學會自己洗澡、穿衣、甚至能獨自走到市場買菜。這種做法能有效延緩身體功能的退化速度，讓長輩重拾對生活的掌控感與自尊心，同時也能大幅減輕子女或看護的照顧負擔，真正實現「在地安老、快樂老」。' },
-            
             { bingoTitle: 'AI假醫生', isHard: true, isMulti: true,
               question: '注意！社群平台上有些醫療養生影片是AI生成，內容不一定真實。下列哪些特徵可以用來辨識該影片為「AI生成假醫生」的視覺破綻？<br>1)影片中的醫生穿著整齊的白袍並配戴聽診器<br>2)影片長度超過10分鐘且畫質解析度極高<br>3)影片中的人物手部細節異常(例如只有4根手指)、不太會眨眼睛<br>4)影片中的人會不斷重複出現相同手勢或動作',
               options: ['影片中的醫生穿著整齊的白袍並配戴聽診器', '影片長度超過10分鐘且畫質解析度極高', '影片中的人物手部細節異常(例如只有4根手指)、不太會眨眼睛', '影片中的人會不斷重複出現相同手勢或動作'], correct: [3, 4],
-              explanation: 'AI生成影像時，對「手部」描繪常出錯，或動作機械式重複。<br><iframe src="https://www.youtube.com/embed/-hI_A4oWbbg" allowfullscreen class="w-full max-w-3xl aspect-video mx-auto mt-6 mb-4 rounded-3xl shadow-xl border-4 border-green-500"></iframe><div class="text-center mt-4"><a href="https://www.youtube.com/watch?v=v2d1pcwtr3c" target="_blank" class="text-yellow-200 hover:text-yellow-400 underline text-3xl font-black">🔗 點擊觀看更多 AI假影片新聞</a></div>' },
-            
+              explanation: 'AI生成影像時，對「手部」描繪常出錯，或動作機械式重複。<br><iframe src="https://www.youtube.com/embed/-hI_A4oWbbg" allowfullscreen class="w-full max-h-[30vh] mx-auto mt-4 mb-2 rounded-xl shadow-md border-2 border-gray-200"></iframe><div class="text-center mt-2"><a href="https://www.youtube.com/watch?v=v2d1pcwtr3c" target="_blank" class="text-blue-600 hover:text-blue-800 underline text-xl font-bold">🔗 點擊觀看更多 AI假影片新聞</a></div>' },
             { bingoTitle: 'AI 軍事化', isMulti: false,
               question: '隨著AI發展使情報處理能力大幅提升，現代戰爭的步調大幅加速。請問下列關於新型戰爭的敘述，何者錯誤？',
               options: ['AI能在短時間內處理並打擊上千個目標', '由於作戰節奏快速，減少對誤判的緩衝與挽回空間', 'AI能過濾雜訊，讓人類指揮官有時間進行人道與倫理思辨，消除盲目批准指令的橡皮章效應。', '戰爭武器從昂貴的大型船艦，轉移到低成本、高密度的無人機蜂群。'], correct: [3],
               explanation: '人類做決定的效率低於AI，短時間內大量審核資訊會容易疲勞，變成無意識的同意AI提供的決策，像是蓋印章的機器。這也是米娜女子小學誤擊慘案等平民傷亡悲劇發生的主因。' },
-            
             { bingoTitle: '核能設施與發展', isMulti: false,
               question: '關於核能的特性與發展，下列敘述何者錯誤？',
               options: ['台灣的核電廠始於1970年代的十大建設，當時的石油危機也與中東戰事有關。', '正常運轉下，燃煤發電釋放至環境的輻射量比核電廠還要多。', '核電廠延役審查通過後就能馬上恢復運轉提供電力產能。', '戰爭時能源設施通常是首要攻擊目標。'], correct: [3],
               explanation: '若政府評估後決定讓核電廠延役，仍無法立即解決眼前的電力焦慮，因為設備更新與嚴格的核安審查至少需要耗時數年，無法「馬上」恢復運轉。' },
-            
             { bingoTitle: '用電發展與綠能', isMulti: true,
               question: 'AI的快速發展帶動電力需求增加。下列台灣用電現狀與能源政策的敘述，哪些正確？(請選出所有正確的選項)<br>(1)設備不穩定是停電原因之一，台電目前正進行強化電網韌性計畫。<br>(2)核一、核二廠雖然已經停機，但因政策與民意對於核廢料貯存設施的阻力，導致用過的燃料棒仍存放在冷卻池中，實質的除役工程被迫卡關。<br>(3)綠電在推動過程中面臨諸多地方困境，例如光電侵農爭議、熱島效應疑慮，以及離岸風電的漁權衝突與相關弊案。<br>(4)太陽能與風力發電在夜間或無風時，仍需依賴能快速發電的燃煤來填補缺口，導致火力發電短期內無法退場。<br>(5)由於AI與半導體產業用電成長超乎預期，加上綠電建置進度受阻，加劇未來供電緊繃甚至缺電的風險。',
               options: ['設備不穩定是停電原因之一，台電目前正進行強化電網韌性計畫。', '核一、核二廠雖然已經停機，但因政策與民意對於核廢料貯存設施的阻力，導致用過的燃料棒仍存放在冷卻池中，實質的除役工程被迫卡關。', '綠電在推動過程中面臨諸多地方困境，例如光電侵農爭議、熱島效應疑慮，以及離岸風電的漁權衝突與相關弊案。', '太陽能與風力發電在夜間或無風時，仍需依賴能快速發電的燃煤來填補缺口，導致火力發電短期內無法退場。', '由於AI與半導體產業用電成長超乎預期，加上綠電建置進度受阻，加劇未來供電緊繃甚至缺電的風險。'], correct: [1, 2, 3, 4, 5],
               explanation: '隨著AI運算與半導體產業的蓬勃發展，台灣的用電需求快速成長，使電力供應面臨多重考驗。首先，為了改善設備老舊導致的停電，台電正投入資源強化電網韌性。而在能源轉型過程中，雖然核一、二廠已停機，但受限於核廢料貯存設施的建設受阻，導致除役工程停滯；同時，再生能源的發展也面臨農地、漁權爭議與地方阻力。此外，由於綠電受限於氣候(如夜間無光、無風時)，目前仍需依賴能快速調度的燃煤火力發電來填補缺口，使得減碳與退煤進度受限。在產業需求激增與綠電建設進度緩慢的雙重壓力下，台灣未來確實面臨供電緊繃甚至缺電的嚴峻風險。' },
-            
             { bingoTitle: '三月瘋媽祖', isMulti: false,
               question: '每年農曆三月各地都會舉辦盛大的媽祖遶境或進香活動。不同地區的媽祖不僅各有特色，民間還流傳著許多生動的俗諺。請將下列四間知名宮廟的媽祖(甲~丁)，與其最著名的特色(1~4)進行正確配對。<br>【宮廟媽祖】 甲、大甲鎮瀾宮(大甲媽) 乙、通霄白沙屯拱天宮(白沙屯媽) 丙、北港朝天宮(北港媽)<br>【著名特色】 1. 粉紅超跑 2.規模最大、走很遠 3.吃炮、真人藝閣',
               options: ['甲1/乙2/丙3', '甲3/乙2/丙1', '甲2/乙1/丙3'], correct: [3],
               explanation: '大甲媽祖遶境進香被譽為世界三大宗教盛事之一，是台灣目前知名度最高、規模最大的進香活動。行程長達九天八夜，跨越中南部四縣市，徒步約340多公里。<br>白沙屯媽祖進香的最大特色是沒有固定路線，由媽祖神意引導神轎前進。因為神轎上方覆蓋著粉紅色的防雨帆布，且行進速度極快、甚至會隨機轉彎，機動性宛如神界跑車，被信徒暱稱為「粉紅超跑」。<br>北港迎媽祖是台灣三大炮會之一。當神轎出巡時，信徒會在轎底堆滿大量的鞭炮並點燃，就是著名的吃炮(犁炮)。此外，遊行隊伍中還有傳統的真人藝閣，由孩童打扮成神話故事人物坐在華麗的車上沿途撒糖果。' }
         ];
 
-        // 盜壘小任務題庫
         const stealTasks = [
             "您平常會用哪些方式看新聞、了解社會發生的事情？(例如:看報紙、看FB、看電視...)",
             "捷運以後會蓋到「新建國市場」，長輩們以前一定常去火車站旁邊的「舊建國市場」或是中區逛街。請跟大家分享一下：您印象中以前火車站附近最熱鬧、您最愛去的是哪一個地方？",
@@ -465,7 +566,7 @@
             "分享一個您參加過最熱鬧的廟會，或您最喜歡去哪間廟拜拜求平安？",
             "您們平常的早餐都吃甚麼呢？您覺得平常吃的早餐有營養嗎？",
             "平常有使用過敬老愛心卡嗎？您都會用愛心卡做什麼事情？請分享您使用這項服務的經驗",
-            "現在常聽電視說AI、AI的，大家會不會很想學看看怎麼用手機叫AI幫你做事情、查資料？還是覺得這都是年輕人的玩意兒？也可以分享您聽到兒女使用AI(人工智慧)的經驗。",
+            "現在常聽電視說AI、AI的，大家會不會很想學看看怎麼用手機叫AI幫別人做事情、查資料？還是覺得這都是年輕人的玩意兒？也可以分享您聽到兒女使用AI(人工智慧)的經驗。",
             "清明節有許多人習慣吃春捲，您也會在清明節吃春捲嗎？年節時會不會下廚做美食來吃？(例如：春捲、粽子、菜頭粿)",
             "當初您為什麼會來據點一起成為學員？來據點之後生活各種方面有什麼改變嗎？"
         ];
@@ -479,49 +580,67 @@
         ];
         
         let currentQuestionIndex = 0;
+        let hasAnsweredCurrentQuestion = false;
 
-        // BGM 與 音效系統 (使用 Web Audio API 合成輕柔音樂)
+        // 全螢幕功能
+        function toggleFullScreen(forceEnter = false) {
+            let elem = document.documentElement;
+            if (!document.fullscreenElement) {
+                elem.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+                });
+            } else if (!forceEnter) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // 監聽全螢幕狀態更改按鈕文字
+        document.addEventListener('fullscreenchange', (event) => {
+            const fsBtn = document.getElementById('fs-btn');
+            if (document.fullscreenElement) {
+                fsBtn.innerText = "❌ 退出全螢幕";
+                fsBtn.classList.add("bg-blue-700");
+                fsBtn.classList.remove("bg-gray-700");
+            } else {
+                fsBtn.innerText = "⛶ 全螢幕";
+                fsBtn.classList.remove("bg-blue-700");
+                fsBtn.classList.add("bg-gray-700");
+            }
+        });
+
+        // 音效系統
         let isSoundEnabled = true;
-        let audioCtx, bgmGain;
-        let isPlayingBGM = false;
-        
-        const melody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63]; // C E G C G E (輕鬆木琴感)
-        let melodyIndex = 0;
+        let audioCtx;
+
+        // 背景音樂系統
+        let isBGMPlaying = false;
+        const bgmAudio = new Audio('bgm.mp3');
+        bgmAudio.loop = true;
+
+        function toggleBGM() {
+            const btn = document.getElementById('bgm-btn');
+            if (isBGMPlaying) {
+                bgmAudio.pause();
+                isBGMPlaying = false;
+                btn.innerText = '🎵 音樂: 關';
+                btn.classList.add("bg-gray-700");
+                btn.classList.remove("bg-blue-700");
+            } else {
+                bgmAudio.play().catch(e => console.log("無法播放背景音樂:", e));
+                isBGMPlaying = true;
+                btn.innerText = '🎵 音樂: 開';
+                btn.classList.remove("bg-gray-700");
+                btn.classList.add("bg-blue-700");
+            }
+        }
 
         function initAudio() {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                bgmGain = audioCtx.createGain();
-                bgmGain.gain.value = 0.05; // 背景音量
-                bgmGain.connect(audioCtx.destination);
-                scheduleBGM();
             }
             if(audioCtx.state === 'suspended') audioCtx.resume();
-        }
-
-        function scheduleBGM() {
-            if(!isSoundEnabled) {
-                setTimeout(scheduleBGM, 1000);
-                return;
-            }
-            const time = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            osc.type = 'sine';
-            osc.frequency.value = melody[melodyIndex];
-            
-            const env = audioCtx.createGain();
-            env.gain.setValueAtTime(0, time);
-            env.gain.linearRampToValueAtTime(0.2, time + 0.1);
-            env.gain.linearRampToValueAtTime(0, time + 1.5);
-            
-            osc.connect(env);
-            env.connect(bgmGain);
-            
-            osc.start(time);
-            osc.stop(time + 1.5);
-            
-            melodyIndex = (melodyIndex + 1) % melody.length;
-            setTimeout(scheduleBGM, 1000); // 1秒播一個音
         }
 
         function playTone(freq, type, duration, vol=0.1, startTime=0) {
@@ -536,6 +655,7 @@
             osc.connect(gain); gain.connect(audioCtx.destination);
             osc.start(t); osc.stop(t + duration);
         }
+        
         function playHit() { playTone(600, 'square', 0.1, 0.1); playTone(800, 'square', 0.2, 0.1, 0.1); }
         function playStrikeout() { playTone(300, 'sawtooth', 0.3, 0.1); playTone(200, 'sawtooth', 0.4, 0.1, 0.2); }
         function playHomerun() {
@@ -557,18 +677,37 @@
             noise.start();
             [523.25, 659.25, 783.99, 1046.50].forEach((f,i) => playTone(f, 'sine', 0.3, 0.1, i*0.2));
         }
+        
         function toggleSound() {
             isSoundEnabled = !isSoundEnabled;
-            document.getElementById('sound-btn').innerText = isSoundEnabled ? '🔊 音效與音樂: 開' : '🔇 音效與音樂: 關';
+            document.getElementById('sound-btn').innerText = isSoundEnabled ? '🔊 音效: 開' : '🔇 音效: 關';
         }
 
-        // 計時器變數
+        // 計時器
         let timerSeconds = 30;
         let timerInterval = null;
         let isTimerRunning = false;
 
+        // Modal 控制函數
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById(id).classList.add('flex');
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+        }
+
         function startGame() {
             initAudio();
+            toggleFullScreen(true); // 開始遊戲時嘗試進入全螢幕
+
+            // 開始遊戲時自動播放背景音樂
+            if (!isBGMPlaying) {
+                toggleBGM();
+            }
+
             teams[0].name = document.getElementById('input-t0').value || "一組";
             teams[1].name = document.getElementById('input-t1').value || "二組";
             teams[2].name = document.getElementById('input-t2').value || "三組";
@@ -578,41 +717,47 @@
                 document.getElementById(`name-${i}`).innerText = teams[i].name;
                 document.getElementById(`panel-name-${i}`).innerText = teams[i].name;
                 document.getElementById(`res-name-${i}`).innerText = teams[i].name;
+                document.getElementById(`end-name-${i}`).innerText = teams[i].name;
                 document.getElementById(`lbl-steal-${i}`).innerText = teams[i].name;
             }
 
-            // 確保25題按照PDF順序，完全不隨機
             questions = [...questionsData];
 
             document.getElementById('setup-screen').classList.add('hidden');
-            document.getElementById('scoreboard').classList.remove('hidden');
-            document.getElementById('scoreboard').classList.add('flex');
-            document.getElementById('game-screen').classList.remove('hidden');
-            document.getElementById('game-screen').classList.add('flex');
+            document.getElementById('top-header').classList.remove('hidden');
+            document.getElementById('top-header').classList.add('flex');
+            document.getElementById('game-layout').classList.remove('hidden');
             
             loadQuestion();
         }
 
         function loadQuestion() {
             const q = questions[currentQuestionIndex];
+            hasAnsweredCurrentQuestion = false;
             
             teams.forEach(t => t.selected = []);
             updateSelectionUI();
             resetTimer(30);
+            
+            // 預設將 Modal 停留在題目頁
             switchPage('question');
-
+            
+            // 更新主控台標題
             document.getElementById('q-num-display').innerText = currentQuestionIndex === 0 ? '示範' : currentQuestionIndex;
             
-            const bingoTitle1 = document.getElementById('bingo-title-display-1');
-            if (bingoTitle1) bingoTitle1.innerText = q.bingoTitle;
-
-            document.getElementById('question-text').innerHTML = q.question;
-
+            // 隱藏賓果提示
+            const bingoReveal = document.getElementById('bingo-reveal-container');
+            if (bingoReveal) bingoReveal.classList.add('hidden');
+            
             const hrWarning = document.getElementById('homerun-warning');
             if (hrWarning) hrWarning.classList.toggle('hidden', !q.isHard);
 
             const demoWarning = document.getElementById('demo-warning');
             if (demoWarning) demoWarning.classList.toggle('hidden', !q.isDemo);
+
+            // 更新題目 Modal 內容
+            document.getElementById('bingo-title-display-1').innerText = q.bingoTitle;
+            document.getElementById('question-text').innerHTML = q.question;
 
             const multiWarning = document.getElementById('multi-warning');
             if (multiWarning) multiWarning.classList.toggle('hidden', !q.isMulti);
@@ -621,29 +766,33 @@
             optsContainer.innerHTML = '';
             
             if (q.isMulti) {
-                // 複選題：隱藏獨立的選項區塊，因為選項內容已經包含在題目敘述中，避免重複
                 optsContainer.classList.add('hidden');
             } else {
-                // 單選題：顯示獨立的選項區塊
                 optsContainer.classList.remove('hidden');
                 q.options.forEach((optText, i) => {
                     optsContainer.innerHTML += `
-                        <div class="text-3xl md:text-5xl font-black text-gray-700 bg-gray-100 p-6 md:p-8 rounded-3xl border-4 border-gray-300 flex items-center shadow-md">
-                            <span class="bg-gray-800 text-white w-14 h-14 md:w-20 md:h-20 text-3xl md:text-4xl flex items-center justify-center rounded-full mr-6 shrink-0">${i+1}</span>
+                        <div class="text-2xl font-bold text-gray-700 bg-gray-50 p-4 rounded-2xl border border-gray-300 flex items-center shadow-sm">
+                            <span class="bg-gray-800 text-white w-10 h-10 text-xl flex items-center justify-center rounded-full mr-4 shrink-0">${i+1}</span>
                             <span class="leading-normal">${optText}</span>
                         </div>
                     `;
                 });
             }
 
-            // 動態產生鎖定面板的按鈕
+            // 動態鎖定面板按鈕
             for(let t=0; t<4; t++) {
                 const btnContainer = document.getElementById(`btns-${t}`);
                 btnContainer.innerHTML = '';
                 q.options.forEach((_, i) => {
-                    btnContainer.innerHTML += `<button onclick="selectAnswer(${t}, ${i+1})" id="btn-${t}-${i+1}" class="opt-btn bg-white text-gray-900 font-black text-4xl w-16 h-16 md:w-20 md:h-20 rounded-full border-[6px] border-gray-400 m-2 shadow-md">${i+1}</button>`;
+                    btnContainer.innerHTML += `<button onclick="selectAnswer(${t}, ${i+1})" id="btn-${t}-${i+1}" class="opt-btn bg-white text-gray-900 font-black text-2xl w-14 h-14 rounded-full border-[4px] border-gray-300 shadow hover:bg-gray-100">${i+1}</button>`;
                 });
             }
+
+            // 更新解釋按鈕狀態 (反灰鎖定)
+            const btnExplain = document.getElementById('btn-explain');
+            btnExplain.disabled = true;
+            btnExplain.classList.add('opacity-50', 'cursor-not-allowed');
+            btnExplain.classList.remove('hover:bg-green-600');
         }
 
         function switchPage(page) {
@@ -652,11 +801,18 @@
                 document.getElementById('page-question').classList.add('flex');
                 document.getElementById('page-lock').classList.add('hidden');
                 document.getElementById('page-lock').classList.remove('flex');
+                
+                document.getElementById('btn-to-lock').classList.remove('hidden');
+                document.getElementById('footer-lock-btns').classList.add('hidden');
             } else {
                 document.getElementById('page-question').classList.add('hidden');
                 document.getElementById('page-question').classList.remove('flex');
                 document.getElementById('page-lock').classList.remove('hidden');
                 document.getElementById('page-lock').classList.add('flex');
+                
+                document.getElementById('btn-to-lock').classList.add('hidden');
+                document.getElementById('footer-lock-btns').classList.remove('hidden');
+                document.getElementById('footer-lock-btns').classList.add('flex');
             }
         }
 
@@ -695,10 +851,10 @@
                 let statusEl = document.getElementById(`status-${t}`);
                 if(team.selected.length > 0) {
                     statusEl.innerText = "✅ 已鎖定";
-                    statusEl.className = "mt-6 text-green-400 font-black text-3xl h-12 bg-black/30 px-8 py-2 rounded-xl";
+                    statusEl.className = "mt-auto text-green-600 font-bold text-xl h-10 w-full bg-green-100 rounded-lg flex items-center justify-center border border-green-300 tracking-widest";
                 } else {
                     statusEl.innerText = "尚未選擇";
-                    statusEl.className = "mt-6 text-yellow-400 font-black text-3xl h-12 bg-black/30 px-8 py-2 rounded-xl";
+                    statusEl.className = "mt-auto text-gray-500 font-bold text-xl h-10 w-full bg-white rounded-lg flex items-center justify-center border border-gray-200 tracking-widest";
                     allLocked = false;
                 }
             }
@@ -711,21 +867,26 @@
             } else {
                 subBtn.disabled = true;
                 subBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                subBtn.innerText = "請四組都鎖定後送出";
+                subBtn.innerText = "請各組鎖定後送出";
             }
         }
 
         function submitAnswers() {
             const q = questions[currentQuestionIndex];
             pauseTimer(); 
+            hasAnsweredCurrentQuestion = true;
 
-            document.getElementById('game-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('flex');
-            document.getElementById('result-screen').classList.remove('hidden');
-            document.getElementById('result-screen').classList.add('flex');
-
+            // 準備解釋 Modal 內容
             document.getElementById('result-bingo-title').innerText = q.bingoTitle;
             
+            // 在主控台顯示賓果提示
+            const mainBingoTitle = document.getElementById('main-bingo-title');
+            const bingoReveal = document.getElementById('bingo-reveal-container');
+            if (mainBingoTitle && bingoReveal) {
+                mainBingoTitle.innerText = q.bingoTitle;
+                bingoReveal.classList.remove('hidden');
+            }
+
             let correctStr = q.correct.sort().map(n => `(${n}) ${q.options[n-1]}`).join('<br><br>');
             document.getElementById('correct-answer-text').innerHTML = correctStr;
             document.getElementById('explanation-text').innerHTML = q.explanation;
@@ -733,6 +894,19 @@
             for(let i=0; i<4; i++){
                 processResultUI(i, q);
             }
+
+            // 更新左側計分板
+            updateScoreboardUI();
+
+            // 關閉題目 Modal，解鎖並開啟解釋 Modal
+            closeModal('modal-question');
+            
+            const btnExplain = document.getElementById('btn-explain');
+            btnExplain.disabled = false;
+            btnExplain.classList.remove('opacity-50', 'cursor-not-allowed');
+            btnExplain.classList.add('hover:bg-green-600');
+
+            openModal('modal-explanation');
         }
 
         function executeHit(teamIdx) {
@@ -779,18 +953,17 @@
             if (isCorrect) {
                 if (q.isHard) {
                     executeHomeRun(teamIdx);
-                    outcomeDiv.innerHTML = `<span class="text-red-500 pop-in">🔥 全壘打！</span>`;
+                    outcomeDiv.innerHTML = `<span class="text-red-500 pop-in drop-shadow">🔥 全壘打！</span>`;
                     playHomerun();
                 } else {
                     executeHit(teamIdx);
-                    outcomeDiv.innerHTML = `<span class="text-green-500 pop-in">⚾ 安打！</span>`;
+                    outcomeDiv.innerHTML = `<span class="text-green-500 pop-in drop-shadow">⚾ 安打！</span>`;
                     playHit();
                 }
             } else {
-                outcomeDiv.innerHTML = `<span class="text-gray-500">❌ 出局</span>`;
+                outcomeDiv.innerHTML = `<span class="text-gray-400">❌ 出局</span>`;
                 playStrikeout();
             }
-            updateScoreboardUI();
         }
 
         function openStealModal() {
@@ -811,19 +984,26 @@
                     lbl.parentElement.classList.add('opacity-50');
                 }
             }
-            document.getElementById('steal-modal').classList.remove('hidden');
+            openModal('steal-modal');
         }
 
         function closeStealModal(isSubmit) {
-            document.getElementById('steal-modal').classList.add('hidden');
+            closeModal('steal-modal');
             if(isSubmit) {
                 for(let i=0; i<4; i++){
                     let chk = document.getElementById(`chk-steal-${i}`);
                     if(chk.checked && !chk.disabled) {
                         teams[i].stealsLeft--;
                         executeHit(i);
-                        document.getElementById(`outcome-${i}`).innerHTML += `<br><span class="text-purple-600 text-2xl md:text-3xl pop-in">🏃盜壘+1</span>`;
                         playHit();
+                        
+                        // 防呆（如果目前正在看解釋畫面的話）加入盜壘提示
+                        const outcomeDiv = document.getElementById(`outcome-${i}`);
+                        if(outcomeDiv) {
+                             let oldHtml = outcomeDiv.innerHTML;
+                             if(oldHtml.includes("🏃盜壘+1")) continue;
+                             outcomeDiv.innerHTML = oldHtml + `<br><span class="text-purple-600 text-xl pop-in font-black">🏃盜壘+1</span>`;
+                        }
                     }
                 }
                 updateScoreboardUI();
@@ -831,14 +1011,13 @@
         }
 
         function nextQuestion() {
-            // 第7、21題結束後(index 6, 20) -> 應援時間
-            if (currentQuestionIndex === 6 || currentQuestionIndex === 20) {
+            // 第7、21題結束後(index 7, 21 因為 index 0 是示範題) 
+            if (currentQuestionIndex === 7 || currentQuestionIndex === 21) {
                 showEventScreen("cheer", "應援時間！", "大家一起動起來！");
                 currentQuestionIndex++;
                 return;
             } 
-            // 第14題結束後(index 13) -> 休息時間
-            else if (currentQuestionIndex === 13) {
+            else if (currentQuestionIndex === 14) {
                 showEventScreen("break", "休息時間 ☕", "喝口水，上個洗手間吧！");
                 currentQuestionIndex++;
                 return;
@@ -848,14 +1027,14 @@
         }
 
         function executeNextQuestion() {
-            document.getElementById('result-screen').classList.remove('flex');
-            document.getElementById('result-screen').classList.add('hidden');
+            // 確保所有 Modal 都關閉
+            closeModal('modal-question');
+            closeModal('modal-explanation');
+            closeModal('steal-modal');
 
             currentQuestionIndex++;
 
             if (currentQuestionIndex < questions.length) {
-                document.getElementById('game-screen').classList.remove('hidden');
-                document.getElementById('game-screen').classList.add('flex');
                 loadQuestion();
             } else {
                 showEndScreen();
@@ -863,15 +1042,15 @@
         }
 
         function showEventScreen(type, title, desc) {
-            document.getElementById('result-screen').classList.remove('flex');
-            document.getElementById('result-screen').classList.add('hidden');
+            closeModal('modal-question');
+            closeModal('modal-explanation');
             
             const eventScreen = document.getElementById('event-screen');
             document.getElementById('event-title').innerText = title;
             document.getElementById('event-desc').innerText = desc;
             
             if(type === 'cheer') {
-                createConfetti();
+                createConfetti('confetti-container');
                 playCheerSFX();
             }
 
@@ -884,32 +1063,30 @@
             executeNextQuestion();
         }
 
-        function createConfetti() {
-            const container = document.getElementById('confetti-container');
+        function createConfetti(containerId) {
+            const container = document.getElementById(containerId);
             container.innerHTML = '';
             const colors = ['#ef4444', '#3b82f6', '#22c55e', '#eab308', '#a855f7'];
             for(let i=0; i<150; i++){
                 let conf = document.createElement('div');
                 conf.className = 'confetti';
                 conf.style.left = Math.random() * 100 + 'vw';
-                conf.style.top = -15 + 'px';
+                conf.style.top = -20 + 'px';
                 conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                conf.style.animationDuration = (Math.random() * 2 + 2) + 's';
-                conf.style.animationDelay = (Math.random() * 1) + 's';
+                conf.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                conf.style.animationDelay = (Math.random() * 2) + 's';
                 container.appendChild(conf);
             }
         }
 
         function showEndScreen() {
-            document.getElementById('scoreboard').classList.add('hidden');
-            document.getElementById('scoreboard').classList.remove('flex');
+            document.getElementById('game-layout').classList.add('hidden');
             document.getElementById('end-screen').classList.remove('hidden');
 
             let maxScore = -1;
             let winners = [];
 
             for(let i=0; i<4; i++){
-                document.getElementById(`end-name-${i}`).innerText = teams[i].name;
                 document.getElementById(`end-pts-${i}`).innerText = teams[i].score;
                 document.getElementById(`end-hits-${i}`).innerText = teams[i].hits;
                 
@@ -923,8 +1100,7 @@
 
             document.getElementById('winner-announcement').innerText = `🎉 恭喜 ${winners.join('、')} 🎉`;
             playCheerSFX();
-            createConfetti(); 
-            document.getElementById('end-screen').appendChild(document.getElementById('confetti-container'));
+            createConfetti('end-confetti-container'); 
         }
 
         function updateTimerDisplay() {
