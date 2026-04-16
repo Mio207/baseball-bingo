@@ -46,6 +46,14 @@
             to { transform: translateY(100vh) rotate(720deg); }
         }
         
+        /* 數字彈跳特效 */
+        .num-bounce { animation: numBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes numBounce {
+            0% { transform: scale(0.3); color: #facc15; text-shadow: 0 0 30px #facc15; }
+            50% { transform: scale(1.3); color: #fff; text-shadow: 0 0 50px #fff; }
+            100% { transform: scale(1); }
+        }
+        
         /* Modal 遮罩通用樣式 */
         .modal-overlay {
             background-color: rgba(0, 0, 0, 0.85);
@@ -54,6 +62,9 @@
     </style>
 </head>
 <body class="h-screen w-screen overflow-hidden flex flex-col relative">
+
+    <!-- 背景音樂載入 -->
+    <audio id="bgm-audio" src="bgm.mp3" loop preload="auto"></audio>
 
     <!-- 頂部控制列 -->
     <header id="top-header" class="hidden bg-black/80 backdrop-blur-md shadow-md p-2 shrink-0 z-20 flex justify-between items-center border-b-2 border-yellow-500 text-white">
@@ -172,7 +183,7 @@
                 <div class="text-center mb-10 flex flex-col items-center">
                     <span class="text-2xl font-bold text-yellow-300 block mb-2 tracking-[0.2em] opacity-80">CURRENT PLAY</span>
                     <h2 class="text-7xl lg:text-8xl font-black text-white tracking-widest drop-shadow-lg leading-none">
-                        第 <span id="q-num-display">1</span> 球
+                        第 <span id="q-num-display" class="inline-block transform origin-center">1</span> 球
                     </h2>
                     
                     <!-- 新增：答題後的賓果標題揭曉 -->
@@ -381,7 +392,7 @@
                 </div>
                 
                 <div class="bg-white p-4 rounded-2xl border border-gray-200">
-                    <p class="text-lg text-purple-900 font-bold mb-3 text-center">請選擇盜壘成功的隊伍 (可複選)：</p>
+                    <p class="text-lg text-purple-900 font-bold mb-3 text-center">請選擇挑戰盜壘的隊伍 (可複選)：</p>
                     <div class="grid grid-cols-4 gap-4">
                         <label class="flex items-center justify-center space-x-2 text-xl font-bold p-3 bg-gray-50 rounded-xl border border-gray-300 cursor-pointer hover:bg-purple-100 transition-colors">
                             <input type="checkbox" id="chk-steal-0" class="w-6 h-6 text-purple-600"><span id="lbl-steal-0" class="truncate">一組</span>
@@ -401,7 +412,7 @@
 
             <!-- Footer -->
             <div class="shrink-0 bg-gray-100 p-4 flex gap-4 border-t border-gray-300">
-                <button onclick="closeStealModal(false)" class="btn-press flex-1 bg-gray-500 hover:bg-gray-600 text-white text-2xl font-black py-3 rounded-xl shadow-sm">取消 / 關閉</button>
+                <button onclick="closeStealModal(false)" class="btn-press flex-1 bg-gray-500 hover:bg-gray-600 text-white text-2xl font-black py-3 rounded-xl shadow-sm">放棄本題</button>
                 <button onclick="closeStealModal(true)" class="btn-press flex-1 bg-green-600 hover:bg-green-700 text-white text-2xl font-black py-3 rounded-xl shadow-sm">✅ 確認送出得分</button>
             </div>
         </div>
@@ -523,7 +534,7 @@
               options: ['台灣受假資訊攻擊的嚴重程度位居全球第一。', '中共對台發動資訊戰，假訊息數量從2024年的210萬則驟增至2026年單一季的1億7,328萬則。', '中共自2015年起設立解放軍戰略資源部網路系統部門，在臉書、YouTube、抖音、Line等各大社群平台，宣揚藏傳佛教。', '臺灣事實查核中心透過詳實的調查辨別訊息之真偽，查核的對象為網路及社群媒體中關注度最高的新聞。'], correct: [3],
               explanation: '中共自2015年起設立解放軍戰略資源部網路系統部門，在臉書、YouTube、抖音、Line等各大社群平台，透過散佈假消息以分裂國人彼此之信任。' },
             { bingoTitle: '高雄春捲中毒案', isMulti: true,
-              question: '清明連假高雄正義市場一家40年春捲攤傳出大規模食物中毒案，致病原為「沙門氏菌」。關於此類食安衛生與常見致病原特性，下列敘述何者正確？(請選出所有正確的選項)<br>(1)春捲因食材多且雜、有生菜與蛋白質提供細菌營養，成為細菌溫床。<br>(2)涼麵、生菜沙拉、壽司以及半熟蛋料理等，也是食物中毒的高風險食品。<br>(3)常見的不合格項目還包含黃麴毒素超標、農藥殘留，以及防腐劑超標。<br>(4)引發此次中毒的沙門氏菌非常脆弱，只要離開宿主或在乾燥環境中就會立刻死亡，傳播途徑僅限於食用生肉。<br>(5)沙門氏菌感染的主因通常是未煮熟海鮮，與禽畜類肉品或雞蛋較無關聯。',
+              question: '清明連假高雄正義市場一家40年春捲攤傳出大規模食物中毒案，致病原為「沙門氏菌」。關於此類食安衛生與常見致病原特性，下列敘述何者正確？(請選出所有正確的選項)<br>(1)春捲因食材多且雜、有生菜與蛋白質提供細菌營養，成為細菌溫床。<br>(2)涼麵、生菜沙拉、壽司以及半熟蛋料理等，也是食物中毒的高風險食品。<br>(3)常見的不合格項目還包含黃麴毒素超標、農 শারীরিক殘留，以及防腐劑超標。<br>(4)引發此次中毒的沙門氏菌非常脆弱，只要離開宿主或在乾燥環境中就會立刻死亡，傳播途徑僅限於食用生肉。<br>(5)沙門氏菌感染的主因通常是未煮熟海鮮，與禽畜類肉品或雞蛋較無關聯。',
               options: ['春捲因食材多且雜、有生菜與蛋白質提供細菌營養，成為細菌溫床。', '涼麵、生菜沙拉、壽司以及半熟蛋料理等，也是食物中毒的高風險食品。', '常見的不合格項目還包含黃麴毒素超標、農藥殘留，以及防腐劑超標。', '引發此次中毒的沙門氏菌非常脆弱，只要離開宿主或在乾燥環境中就會立刻死亡，傳播途徑僅限於食用生肉。', '沙門氏菌感染的主因通常是未煮熟海鮮，與禽畜類肉品或雞蛋較無關聯。'], correct: [1, 2, 3],
               explanation: '沙門氏菌的生命力極強，在乾燥環境中能存活數週，在水中甚至能存活數個月之久，因此環境與水源的清潔極為重要。若使用未經洗選的雞蛋，殘留於蛋殼上的雞糞易在打蛋過程中污染蛋液與周遭食材。' },
             { bingoTitle: '中華隊尚勇', isMulti: false,
@@ -610,31 +621,29 @@
             }
         });
 
+        // BGM 系統
+        let isBGMPlaying = false;
+        function toggleBGM() {
+            const bgm = document.getElementById('bgm-audio');
+            const btn = document.getElementById('bgm-btn');
+            if (!bgm) return;
+            
+            if (isBGMPlaying) {
+                bgm.pause();
+                isBGMPlaying = false;
+                btn.innerText = '🎵 音樂: 關';
+            } else {
+                bgm.volume = 0.5; // 預設 50% 音量避免蓋過音效
+                bgm.play().then(() => {
+                    isBGMPlaying = true;
+                    btn.innerText = '🎵 音樂: 開';
+                }).catch(e => console.log('BGM playback failed:', e));
+            }
+        }
+
         // 音效系統
         let isSoundEnabled = true;
         let audioCtx;
-
-        // 背景音樂系統
-        let isBGMPlaying = false;
-        const bgmAudio = new Audio('bgm.mp3');
-        bgmAudio.loop = true;
-
-        function toggleBGM() {
-            const btn = document.getElementById('bgm-btn');
-            if (isBGMPlaying) {
-                bgmAudio.pause();
-                isBGMPlaying = false;
-                btn.innerText = '🎵 音樂: 關';
-                btn.classList.add("bg-gray-700");
-                btn.classList.remove("bg-blue-700");
-            } else {
-                bgmAudio.play().catch(e => console.log("無法播放背景音樂:", e));
-                isBGMPlaying = true;
-                btn.innerText = '🎵 音樂: 開';
-                btn.classList.remove("bg-gray-700");
-                btn.classList.add("bg-blue-700");
-            }
-        }
 
         function initAudio() {
             if (!audioCtx) {
@@ -703,9 +712,15 @@
             initAudio();
             toggleFullScreen(true); // 開始遊戲時嘗試進入全螢幕
 
-            // 開始遊戲時自動播放背景音樂
-            if (!isBGMPlaying) {
-                toggleBGM();
+            // 嘗試自動播放背景音樂
+            const bgm = document.getElementById('bgm-audio');
+            const bgmBtn = document.getElementById('bgm-btn');
+            if (bgm) {
+                bgm.volume = 0.5;
+                bgm.play().then(() => {
+                    isBGMPlaying = true;
+                    if(bgmBtn) bgmBtn.innerText = '🎵 音樂: 開';
+                }).catch(e => console.log('Auto-play blocked:', e));
             }
 
             teams[0].name = document.getElementById('input-t0').value || "一組";
@@ -742,8 +757,12 @@
             // 預設將 Modal 停留在題目頁
             switchPage('question');
             
-            // 更新主控台標題
-            document.getElementById('q-num-display').innerText = currentQuestionIndex === 0 ? '示範' : currentQuestionIndex;
+            // 更新主控台標題並加入彈跳轉換特效
+            const qNumDisplay = document.getElementById('q-num-display');
+            qNumDisplay.innerText = currentQuestionIndex === 0 ? '示範' : currentQuestionIndex;
+            qNumDisplay.classList.remove('num-bounce');
+            void qNumDisplay.offsetWidth; // 觸發瀏覽器重繪 (Reflow)，確保動畫重置
+            qNumDisplay.classList.add('num-bounce');
             
             // 隱藏賓果提示
             const bingoReveal = document.getElementById('bingo-reveal-container');
@@ -989,11 +1008,14 @@
 
         function closeStealModal(isSubmit) {
             closeModal('steal-modal');
-            if(isSubmit) {
-                for(let i=0; i<4; i++){
-                    let chk = document.getElementById(`chk-steal-${i}`);
-                    if(chk.checked && !chk.disabled) {
-                        teams[i].stealsLeft--;
+            let stateChanged = false;
+            for(let i=0; i<4; i++){
+                let chk = document.getElementById(`chk-steal-${i}`);
+                if(chk.checked && !chk.disabled) {
+                    stateChanged = true;
+                    teams[i].stealsLeft--; // 無論成功或放棄都先扣除次數
+                    
+                    if(isSubmit) {
                         executeHit(i);
                         playHit();
                         
@@ -1001,11 +1023,23 @@
                         const outcomeDiv = document.getElementById(`outcome-${i}`);
                         if(outcomeDiv) {
                              let oldHtml = outcomeDiv.innerHTML;
-                             if(oldHtml.includes("🏃盜壘+1")) continue;
-                             outcomeDiv.innerHTML = oldHtml + `<br><span class="text-purple-600 text-xl pop-in font-black">🏃盜壘+1</span>`;
+                             if(!oldHtml.includes("🏃盜壘+1")) {
+                                 outcomeDiv.innerHTML = oldHtml + `<br><span class="text-purple-600 text-xl pop-in font-black">🏃盜壘+1</span>`;
+                             }
+                        }
+                    } else {
+                        // 使用者選擇放棄挑戰：不加分，但已扣次數
+                        const outcomeDiv = document.getElementById(`outcome-${i}`);
+                        if(outcomeDiv) {
+                             let oldHtml = outcomeDiv.innerHTML;
+                             if(!oldHtml.includes("❌挑戰放棄")) {
+                                 outcomeDiv.innerHTML = oldHtml + `<br><span class="text-gray-500 text-xl pop-in font-black">❌挑戰放棄</span>`;
+                             }
                         }
                     }
                 }
+            }
+            if(stateChanged) {
                 updateScoreboardUI();
             }
         }
